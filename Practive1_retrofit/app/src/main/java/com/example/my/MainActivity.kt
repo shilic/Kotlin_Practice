@@ -1,8 +1,9 @@
-package com.example
+package com.example.my
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.myretrofit.R
+import com.example.my.okHttpTest.Ok1
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

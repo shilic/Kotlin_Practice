@@ -1,4 +1,4 @@
-package com.example.myRetrofit;
+package com.example.my;
 
 import androidx.annotation.NonNull;
 
