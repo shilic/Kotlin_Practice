@@ -1,5 +1,8 @@
 package com.example.okHttpTest
 
+import com.example.myRetrofit.myModel.Model1
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.FormBody
@@ -38,7 +41,7 @@ class Ok1() {
         val uri1 = "http://publicobject.com/helloworld.txt"
         val uri2 = "https://jsonplaceholder.typicode.com/users"
         val request = Request.Builder()
-            .url(uri1)
+            .url(uri2)
             .get()
             .build()
 
@@ -53,11 +56,14 @@ class Ok1() {
                 println("GET请求（异步）请求成功")
                 response.use {
                     if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-                    for ((name, value) in response.headers) {
-                        println("OK$name: $value")
-                    }
-                    println("OK"+response.body!!.string())
+//                    for ((name, value) in response.headers) {
+//                        println("OK$name: $value")
+//                    }
+                    val result = response.body!!.string()
+                    println("body=$result")
+                    val gson = Gson()
+                    val model1 :Model1  = gson.fromJson(result, Model1::class.java) // 单个对象
+                    val model1List: List<Model1> = gson.fromJson(result, object : TypeToken<List<Model1>>() {}.type) // 多个对象
                 }
             }
         })
