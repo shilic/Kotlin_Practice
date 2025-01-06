@@ -1,17 +1,15 @@
 package com.example.my
 
 import com.example.my.myModel.Model1
+import com.example.my.myService.RetrofitService
 import com.example.my.okHttpTest.Ok1
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ExampleUnitTest {
-    private val tag : String = "test";
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
+    private val tag : String = "test"
+
     @Test
     fun test1(): Unit {
         println("\n\n hello kotlin\n\n ")
@@ -21,7 +19,7 @@ class ExampleUnitTest {
         val ok1 = Ok1()
         ok1.runGetEnqueue()
         // 因为单元测试的缘故，程序到这里就会终止，故增加休眠，等待 callback
-        Thread.sleep(5000)
+        Thread.sleep(10_000)
         /*
         *  {
         "id": 1,
@@ -48,6 +46,13 @@ class ExampleUnitTest {
         },
         *
         * */
+    }
+    @Test
+    fun retrofitUnitTest(): Unit {
+        val retrofitService  = RetrofitService()
+        retrofitService.create()
+        retrofitService.getResult()
+        Thread.sleep(10_000)
     }
     @Test
     fun jsonTest(): Unit {
