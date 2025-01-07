@@ -4,7 +4,9 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="distributionType" value="WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="D:/2_soft/2_IDE/7_Android_Studio/localGradle/gradle-6.8-bin/gradle-6.8" />
         <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
           <set>
