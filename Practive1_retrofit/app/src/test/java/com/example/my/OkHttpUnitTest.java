@@ -2,7 +2,7 @@ package com.example.my;
 
 import androidx.annotation.NonNull;
 
-import com.example.my.myModel.Model1;
+import com.example.my.myModel.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import kotlin.jvm.Transient;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -50,9 +49,9 @@ public class OkHttpUnitTest {
                     System.out.println("异步请求 ok = " + result);
                     Gson gson = new Gson();
                     // 使用 TypeToken 来解析 JSON 数组
-                    Type type = new TypeToken<List<Model1>>(){}.getType();
-                    List<Model1> modelList = gson.fromJson(result, type);
-                    for (Model1 item : modelList){
+                    Type type = new TypeToken<List<User>>(){}.getType();
+                    List<User> modelList = gson.fromJson(result, type);
+                    for (User item : modelList){
                         System.out.println("解析结果为 = "+ item.toString());
                     }
                 }

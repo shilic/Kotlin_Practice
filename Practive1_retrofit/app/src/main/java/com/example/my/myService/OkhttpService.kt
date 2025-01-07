@@ -4,7 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.util.Log
-import com.example.my.myModel.Model1
+import com.example.my.myModel.User
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.Call
@@ -18,6 +18,9 @@ import okhttp3.Response
 import java.io.IOException
 
 
+/**
+ * Okhttp网络请求服务
+ */
 class OkhttpService : Service() {
     private val tag :String = "OkHttpService"
     private val client = OkHttpClient() // 新建OkHttpClient客户端
@@ -34,7 +37,7 @@ class OkhttpService : Service() {
     override fun onBind(intent: Intent): IBinder {
         return binder
     }
-    // GET请求（同步）
+    /** GET请求（同步）*/
     fun getExecute(): String {
         val url = "https://jsonplaceholder.typicode.com/users"
         val request = Request.Builder().url(url).build() // 新建Request对象
@@ -42,7 +45,9 @@ class OkhttpService : Service() {
         val response = mCall.execute() // Response为OkHttp中的响应
         return response.body?.string() ?: ""
     }
-    // GET请求（异步）
+    /**
+     * GET请求（异步）
+      */
     fun runGetEnqueue() {
         println("尝试 GET请求（异步）")
         val uri1 = "http://publicobject.com/helloworld.txt"
@@ -70,8 +75,8 @@ class OkhttpService : Service() {
                     Log.d(tag,"OkHttp 原始数据 = $result")
                     val gson = Gson()
                     //val model1 :Model1  = gson.fromJson(result, Model1::class.java) // 单个对象
-                    val model1List: List<Model1> = gson.fromJson(result, object : TypeToken<List<Model1>>() {}.type) // 多个对象
-                    for (item in model1List){
+                    val userLists: List<User> = gson.fromJson(result, object : TypeToken<List<User>>() {}.type) // 多个对象
+                    for (item in userLists){
                         Log.d(tag,"OkHttp json串解析测试 ： $item")
                     }
                 }
@@ -121,4 +126,4 @@ class OkhttpService : Service() {
     inner class IBinder : Binder() {
         fun getService(): OkhttpService = this@OkhttpService
     }
-}
+} // OkhttpService

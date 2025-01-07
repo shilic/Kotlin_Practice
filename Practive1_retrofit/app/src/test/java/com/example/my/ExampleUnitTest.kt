@@ -1,10 +1,9 @@
 package com.example.my
 
-import com.example.my.myModel.Model1
+import com.example.my.myModel.User
 import com.example.my.myService.RetrofitService
 import com.example.my.okHttpTest.Ok1
 import com.google.gson.Gson
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ExampleUnitTest {
@@ -51,7 +50,7 @@ class ExampleUnitTest {
     fun retrofitUnitTest(): Unit {
         val retrofitService  = RetrofitService()
         retrofitService.create()
-        retrofitService.getResult()
+        retrofitService.getUser()
         Thread.sleep(10_000)
     }
     @Test
@@ -80,8 +79,8 @@ class ExampleUnitTest {
                 "         }\n" +
                 "        }"
         val gson = Gson()
-        val model1 : Model1 = gson.fromJson(json, Model1::class.java) // 单个对象
-        println("json串解析测试 ： $model1")
+        val user : User = gson.fromJson(json, User::class.java) // 单个对象
+        println("json串解析测试 ： $user")
     }
 
 

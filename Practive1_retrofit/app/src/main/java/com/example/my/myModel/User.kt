@@ -1,4 +1,9 @@
 package com.example.my.myModel
+
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
+
 /*
         *  {
         "id": 1,
@@ -25,9 +30,10 @@ package com.example.my.myModel
         },
         *
         * */
-import com.google.gson.annotations.SerializedName
-
-class Model1 {
+/**
+ * 用户数据模型
+ */
+class User {
     val id: Int? = null
     val name: String? = null
     val username: String? = null
@@ -36,10 +42,40 @@ class Model1 {
     val phone: String? = null
     val website: String? = null
     val company: Company? = null
+    //此处踩坑，定义数据类，不可以像 javascript 一样使用lambda表达式。
     override fun toString(): String {
         return "\n{ id=$id, name=$name, username=$username, email=$email" +
                 "\n  address=$address, \nphone=$phone, website=$website, company=$company" +
                 "}\n"
+    }
+    companion object {
+        fun getDefault(): List<User> {
+            val json = " [{\n" +
+                    "        \"id\": 1,\n" +
+                    "        \"name\": \"Leanne Graham\",\n" +
+                    "        \"username\": \"Bret\",\n" +
+                    "        \"email\": \"Sincere@april.biz\",\n" +
+                    "        \"address\": {\n" +
+                    "          \"street\": \"Kulas Light\",\n" +
+                    "          \"suite\": \"Apt. 556\",\n" +
+                    "          \"city\": \"Gwenborough\",\n" +
+                    "          \"zipcode\": \"92998-3874\",\n" +
+                    "          \"geo\": {\n" +
+                    "            \"lat\": \"-37.3159\",\n" +
+                    "            \"lng\": \"81.1496\"\n" +
+                    "           }\n" +
+                    "        },\n" +
+                    "         \"phone\": \"1-770-736-8031 x56442\",\n" +
+                    "          \"website\": \"hildegard.org\",\n" +
+                    "            \"company\": {\n" +
+                    "            \"name\": \"Romaguera-Crona\",\n" +
+                    "            \"catchPhrase\": \"Multi-layered client-server neural-net\",\n" +
+                    "            \"bs\": \"harness real-time e-markets\"\n" +
+                    "         }\n" +
+                    "        }]"
+            val gson = Gson()
+            return gson.fromJson(json, object : TypeToken<List<User>>() {}.type) // 多个对象
+        }
     }
 }
 class Address {

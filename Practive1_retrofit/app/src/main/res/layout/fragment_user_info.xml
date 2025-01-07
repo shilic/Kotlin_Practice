@@ -1,0 +1,17 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.my.myPage.myFrag.userInfo.UserInfoFrag"
+    android:orientation="vertical"
+    android:padding="5dp"
+    >
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_user_info_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#EEE8F1"
+        />
+
+</LinearLayout>

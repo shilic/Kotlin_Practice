@@ -1,6 +1,6 @@
 package com.example.my.okHttpTest
 
-import com.example.my.myModel.Model1
+import com.example.my.myModel.User
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.Call
@@ -64,8 +64,8 @@ class Ok1() {
                     println("body=$result")
                     val gson = Gson()
                     //val model1 :Model1  = gson.fromJson(result, Model1::class.java) // 单个对象
-                    val model1List: List<Model1> = gson.fromJson(result, object : TypeToken<List<Model1>>() {}.type) // 多个对象
-                    for (item in model1List){
+                    val userLists: List<User> = gson.fromJson(result, object : TypeToken<List<User>>() {}.type) // 多个对象
+                    for (item in userLists){
                         println("json串解析测试 ： $item")
                     }
                 }
