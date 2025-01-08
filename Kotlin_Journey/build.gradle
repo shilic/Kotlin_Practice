@@ -1,0 +1,43 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+    id 'application'
+}
+
+group = 'me.kfb'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'junit:junit:4.13.1'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    //testImplementation 'junit:junit:4.13.2'
+    // http
+    implementation 'com.google.code.gson:gson:2.8.2' //(gson生成和解析库)
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3' //(开源的网络请求库)
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1' //(支持okhttp跟踪到一个网络请求的所有状态，包括请求头、请求体、响应行、 响应体,方便调试)
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0' //(实现将HTTP请求转换为Java接口)
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0' //(配合Rxjava 使用)
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0' //(转换器，请求结果转换成Model)
+    implementation 'io.reactivex:rxandroid:1.2.1'
+    implementation 'io.reactivex:rxjava:1.2.1' //(一种帮助你做异步的框架. 类似于 AsyncTask. 但其灵活性和扩展性远远强于前者. 从能力上讲, 如果说 AsycnTask 是 DOS 操作系统, RxJava 是 Window 操作系统。)
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+application {
+    mainClassName = 'MainKt'
+}
