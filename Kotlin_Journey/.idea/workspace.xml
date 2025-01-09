@@ -5,9 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7120236f-0004-47cd-9508-1d858742eaee" name="默认变更列表" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/KtObject.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/chapter3_oop/Flyer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/chapter3_oop/KtDataType.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/chapter3_oop/KtInterface.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/chapter3_oop/KtObject.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/chapter3_oop/MyColorEnum.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ktCore/other/KtAccessCtrl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ktCore/KtObject.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/main.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -23,7 +35,11 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Kotlin Enum" />
+        <option value="Class" />
         <option value="Kotlin Class" />
+        <option value="Kotlin Interface" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -47,14 +63,20 @@
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Kotlin" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="ktCore.Other" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="ktCore.chapter3_oop" />
+    </key>
     <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.UnitTest.junitTest2">
+  <component name="RunManager" selected="JUnit.KtAccessCtrl.accessTest2">
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
@@ -66,21 +88,91 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UnitTest.junitTest2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Kotlin_Journey.test" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="UnitTest" />
-      <option name="METHOD_NAME" value="junitTest2" />
+    <configuration name="KtAccessCtrl.accessTest1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Kotlin_Journey.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ktCore.other.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="PACKAGE_NAME" value="ktCore.other" />
+      <option name="MAIN_CLASS_NAME" value="ktCore.other.KtAccessCtrl" />
+      <option name="METHOD_NAME" value="accessTest1" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UnitTest.junitTest3" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Kotlin_Journey.test" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="UnitTest" />
-      <option name="METHOD_NAME" value="junitTest3" />
+    <configuration name="KtAccessCtrl.accessTest2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Kotlin_Journey.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ktCore.other.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="PACKAGE_NAME" value="ktCore.other" />
+      <option name="MAIN_CLASS_NAME" value="ktCore.other.KtAccessCtrl" />
+      <option name="METHOD_NAME" value="accessTest2" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="KtArray.print0" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Kotlin_Journey.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ktCore.chapter3_oop.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="PACKAGE_NAME" value="ktCore.chapter3_oop" />
+      <option name="MAIN_CLASS_NAME" value="ktCore.chapter3_oop.KtArray" />
+      <option name="METHOD_NAME" value="print0" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="KtArray.printArray" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Kotlin_Journey.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ktCore.chapter3_oop.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="PACKAGE_NAME" value="ktCore.chapter3_oop" />
+      <option name="MAIN_CLASS_NAME" value="ktCore.chapter3_oop.KtArray" />
+      <option name="METHOD_NAME" value="printArray" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="KtArray.printStringArray" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Kotlin_Journey.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ktCore.chapter3_oop.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="PACKAGE_NAME" value="ktCore.chapter3_oop" />
+      <option name="MAIN_CLASS_NAME" value="ktCore.chapter3_oop.KtArray" />
+      <option name="METHOD_NAME" value="printStringArray" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -96,23 +188,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="MainKt" />
-      <module name="Kotlin_Journey.main" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
-      <item itemvalue="JUnit.UnitTest.junitTest2" />
-      <item itemvalue="JUnit.UnitTest.junitTest3" />
-      <item itemvalue="Kotlin.MainKt" />
+      <item itemvalue="JUnit.KtAccessCtrl.accessTest1" />
+      <item itemvalue="JUnit.KtArray.printArray" />
+      <item itemvalue="JUnit.KtArray.print0" />
+      <item itemvalue="JUnit.KtArray.printStringArray" />
+      <item itemvalue="JUnit.KtAccessCtrl.accessTest2" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.UnitTest.junitTest3" />
-        <item itemvalue="Kotlin.MainKt" />
-        <item itemvalue="JUnit.UnitTest.junitTest2" />
+        <item itemvalue="JUnit.KtAccessCtrl.accessTest2" />
+        <item itemvalue="JUnit.KtArray.printStringArray" />
+        <item itemvalue="JUnit.KtArray.printArray" />
+        <item itemvalue="JUnit.KtArray.print0" />
+        <item itemvalue="JUnit.KtAccessCtrl.accessTest1" />
       </list>
     </recent_temporary>
   </component>
@@ -133,7 +222,7 @@
       <workItem from="1736336913683" duration="188000" />
       <workItem from="1736337142026" duration="17000" />
       <workItem from="1736381632183" duration="713000" />
-      <workItem from="1736382442236" duration="741000" />
+      <workItem from="1736382442236" duration="16783000" />
     </task>
     <servers />
   </component>
@@ -151,5 +240,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
