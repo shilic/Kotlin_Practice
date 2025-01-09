@@ -1,0 +1,4 @@
+package ktCore
+
+class KtObject {
+}
