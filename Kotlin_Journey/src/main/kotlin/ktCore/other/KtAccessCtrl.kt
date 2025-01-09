@@ -1,9 +1,6 @@
 package ktCore.other
 
-import ktCore.chapter3_oop.Bird
-import ktCore.chapter3_oop.BirdTest
-import ktCore.chapter3_oop.OK
-import ktCore.chapter3_oop.printObjectTest
+import ktCore.chapter3_oop.*
 
 
 import org.junit.Test
@@ -32,7 +29,7 @@ class KtAccessCtrl {
      */
     @Test
     fun accessTest2() {
-        val bird = Bird()
+        val bird = Penguin()
         bird.fly()
         val birdTest = BirdTest()
         birdTest.test()

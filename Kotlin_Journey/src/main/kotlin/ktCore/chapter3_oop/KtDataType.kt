@@ -56,7 +56,7 @@ class KtDataType {
 /**
  * 实验kotlin中几种不同的数组创建方式
  */
-class KtArray(){
+private class KtArray(){
     val OK : Int = 1
 
     //arrayOf() 函数允许你直接创建一个包含指定元素的数组。
