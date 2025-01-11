@@ -1,6 +1,6 @@
 package ktCore.chapter3_oop
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import sun.text.resources.cldr.om.FormatData_om
 
 
@@ -81,6 +81,16 @@ class Penguin(
         set(value) {field = value}
     override var type: String? = type
     override var name :String = name
+    // 定义了 lateinit var 之后，不代表就可以不用赋值。如果你 之后尝试获取这个值时，如果你没赋值，依然会报错(不获取就不会报错)
+    //kotlin.UninitializedPropertyAccessException: lateinit property food has not been initialized
+    lateinit var food : String
+    // 你还可以用 hy lazy 来延迟初始化
+    val sex: String by lazy {
+        if(color == MyColorEnum.Yellow)
+            return@lazy "male"
+        else
+            return@lazy "female"
+    }
     init {
         super.weight = weight  // weight同样没有使用open
         this.age = age // 父类没有使用 open 关键字，尝试对父类属性进行修改
@@ -91,9 +101,7 @@ class Penguin(
     * 方式三： 在子类的内部通过  override var name :String = name 的方式从构造函数取值。
     * 方式四： 直接在构造函数中赋值。
     * */
-    // 定义了 lateinit var 之后，不代表就可以不用赋值。如果你 之后尝试获取这个值时，如果你没赋值，依然会报错(不获取就不会报错)
-    //kotlin.UninitializedPropertyAccessException: lateinit property food has not been initialized
-    lateinit var food : String
+
     /** 以下代码报错，egg只是构造函数中的参数，你可以理解成java构造函数中的参数，不是字段，故无法直接在其他函数使用。只可以在构造函数中使用。 */
     fun printEgg(){
         //println(""+egg)
@@ -115,7 +123,8 @@ class Penguin(
 
 
     // 子类应该避免重写父类的非抽象方法。使用final可以更符合里氏替换原则。例如fly是父类非抽象的方法，已经在其他地方被用了，参数也固定了。
-    // 这个时候子类非法重写了这个非抽象方法，如果参数不一致就会导致其他已经在使用的地方导致出错。这就是里氏替换原则的精华
+    // 这个时候子类非法重写了这个非抽象方法，如果参数不一致就会导致其他已经在使用的地方导致出错。这就是里氏替换原则的精华。故kotlin给所有的类和方法加上了final
+    // 默认所有的类不可继承，方法不可重写，以保护类的完整性，满足里氏替换原则。
     override fun fly(){
         println("我不会飞")
     }

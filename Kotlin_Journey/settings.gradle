@@ -1,3 +1,5 @@
-
 rootProject.name = 'Kotlin_Journey'
+include 'Internal_Module'
+include 'TestModule'
+include 'Test_Module'
 

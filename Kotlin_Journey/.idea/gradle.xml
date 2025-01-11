@@ -11,6 +11,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Internal_Module" />
+            <option value="$PROJECT_DIR$/TestModule" />
+            <option value="$PROJECT_DIR$/Test_Module" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -1,7 +1,6 @@
-package ktCore.chapter3_oop
+package ktCore.chapter3_oop.ktData
 
-import com.sun.xml.internal.fastinfoset.util.StringArray
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 // 你可以在类文件和方法之外定义变量，相当于一个全局变量。这样的变量在整个包中可见，其他包需要 import导入
 val OK : Int = 1
