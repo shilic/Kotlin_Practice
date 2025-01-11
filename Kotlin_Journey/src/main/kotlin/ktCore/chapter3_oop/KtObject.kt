@@ -114,12 +114,13 @@ class Penguin(
     }
 
 
-    // 子类应该避免重写父类的非抽象方法
+    // 子类应该避免重写父类的非抽象方法。使用final可以更符合里氏替换原则。例如fly是父类非抽象的方法，已经在其他地方被用了，参数也固定了。
+    // 这个时候子类非法重写了这个非抽象方法，如果参数不一致就会导致其他已经在使用的地方导致出错。这就是里氏替换原则的精华
     override fun fly(){
         println("我不会飞")
     }
 
-    //weight 无法自动生成？age 同样; egg是参数。尝试打印两个父类没有用 open修饰的属性
+    //weight 无法自动生成？age 同样; egg是参数。尝试打印两个父类没有用open修饰的属性
     override fun toString(): String {
         return "Penguin(color=$color, childNum=$childNum, param=$param, gender=$gender, name='$name', food='$food', type='$type'" +
                 ", weight=$weight, age=$age"+
@@ -138,7 +139,6 @@ class BirdTest{
      */
     @Test
     fun getAndSetTest(){
-
         val bird  = Penguin()
         println("${bird.name}怎么叫：${bird.call}") // bird.call 这里实际上使用了 get语句，只不过 kotlin 简化了
         // 下边这句代码会报错。set 被私有化了之后，将无法从外部赋值。刚才说了，kotlin中的属性默认全部都是 public 的，包括 get 和 set 也是默认实现了的
@@ -163,7 +163,7 @@ class BirdTest{
         bird1.eat("鱼")
         bird2.eat("虾")
         println("无参构造的企鹅是 $bird1\n有参构造的企鹅是 $bird2")
-        // weight=100.0, age=5 .可以看到 都可以对父类的属性进行修改。指向的是父类的属性。而 gender 因为重写了，指向的是自己的属性。同样 color也重写了，指向的是自己的。
+        // weight=100.0, age=5 .可以看到 super和this都可以对父类的属性进行修改，指向的是父类的属性。而 gender 因为重写了，指向的是自己的属性。同样 color也重写了，指向的是自己的。
         val bird3 = Penguin(type ="跳岩企鹅") // 任意参数构造，需要指定参数的类型
         bird3.eat("虾")
         println("任意参数构造的企鹅是 $bird3")

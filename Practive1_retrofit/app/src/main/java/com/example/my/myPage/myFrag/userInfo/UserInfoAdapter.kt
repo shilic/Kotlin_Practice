@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.my.myModel.User
+import com.example.my.bean.UserBean
 import com.example.myretrofit.R
 
-class UserInfoAdapter(context : Context, userList :List<User>) : RecyclerView.Adapter<ViewHolder>() {
-    private var mUserList : List<User>
+class UserInfoAdapter(context : Context, userList : List<UserBean>) : RecyclerView.Adapter<ViewHolder>() {
+    private var mUserList : List<UserBean>
     private val mContext : Context
     init {
         mUserList = userList
@@ -32,7 +32,7 @@ class UserInfoAdapter(context : Context, userList :List<User>) : RecyclerView.Ad
         vh.emailTv.text = mUserList[position].email
         vh.phoneTv.text = mUserList[position].phone
     }
-    fun updateData(newUserList: List<User>) {
+    fun updateData(newUserList: List<UserBean>) {
         mUserList = newUserList
         notifyDataSetChanged()
     }

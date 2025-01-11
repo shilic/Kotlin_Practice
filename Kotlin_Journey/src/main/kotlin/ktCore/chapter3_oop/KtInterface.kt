@@ -4,7 +4,7 @@ interface KtInterface {
 
 }
 interface IFlyer {
-    // kotlin中虽然可以定义字段，但是在内部确实通过 getSpeed() 实现的。
+    // kotlin中虽然可以定义字段，但是在内部确实通过 getSpeed() 实现的。见下边的实现类Eagle，
     val speed :Int
     // java中不可以定义没有初始值的字段，必须要有明确的初始值，在kotlin中通过 val 加 get 方式来实现一个常量。
     val height :Int
