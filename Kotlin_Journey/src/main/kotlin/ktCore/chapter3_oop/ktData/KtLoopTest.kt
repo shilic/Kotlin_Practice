@@ -59,13 +59,13 @@ class KtLoopTest {
         val fruitArray = data.fruitArray
         /* for 循环 ： 对索引值进行循环 ，类似于 java 中的 for ( int i = 0; i<length ; i++) */
         val str1 : StringBuilder = StringBuilder().append("1.until循环：language : ")
-        for (i in 0 until list.size){
+        for (i in 0 until list.size){ // until 左闭右开
             str1.append("[$i]=${list[i]}, ")
         }
         println(str1.toString())
 
-        val str2 : StringBuilder = StringBuilder().append("2.范围表达式循环：language : ")
-        for (i : Int in 0..3){ // 不包含6 ，也可以写作 0..(list.size-1)
+        val str2 : StringBuilder = StringBuilder().append("2.范围表达式循环(step 2)：language : ")
+        for (i : Int in 0..5 step 2){ // 不包含6 ，也可以写作 0..(list.size-1)
             str2.append("[$i]=${list[i]}, ")
         }
         println(str2.toString())
@@ -74,6 +74,7 @@ class KtLoopTest {
         for (i in list.indices){ // list.indices 表示循环 list 的索引值
             str3.append("[$i]=${list[i]}, ")
         }
+        println("2. list.indices = ${list.indices.joinToString()}") // list.indices = 0, 1, 2, 3, 4, 5
         println(str3.toString())
 
         // 可以同时循环“索引”和“值”
@@ -90,14 +91,17 @@ class KtLoopTest {
         }
         println(str5.toString())
 
-        val str6 : StringBuilder = StringBuilder().append("6.forEach：fruitArray : ")
+        val str6 : StringBuilder = StringBuilder().append("6.forEach 循环：fruitArray : ")
         fruitArray.forEach { item ->
             str6.append("$item , ")
         }
         println(str6.toString())
 
-
-
+        val str7 : StringBuilder = StringBuilder().append("7.downTo 循环：fruitArray : ")
+        for (i in (fruitArray.size -1)  downTo 0){
+            str7.append("${fruitArray[i]} , ")
+        }
+        println(str7.toString())
 
     }
     @Test

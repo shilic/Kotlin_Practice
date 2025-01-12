@@ -1,12 +1,8 @@
-package ktCore.chapter3_oop
+package ktCore.chapter3_oop.kt_oop
 
 import org.junit.jupiter.api.Test
-import sun.text.resources.cldr.om.FormatData_om
 
 
-class KtObject {
-
-}
 // 需要显式的使用open指定可以被继承
 // Bird 类只有一个构造函数，无参构造函数，我们需要添加其他构造函数。在java中，我们需要手动通过构造函数的重载来实现多个构造函数，而kotlin则不需要
 abstract class Bird() {
@@ -71,7 +67,7 @@ class Penguin(
 
     // 以下参数为子类独有
     egg : Int = 11,
-    var childNum : Int = 11 ,
+    var childNum : Int = 11,
     param: Int = 11
 ) : Bird() { // Penguin : Bird()
     var param = param  // 可以直接使用构造函数中的参数 param ; 又或者使用kotlin推荐的语法，直接在构造函数中使用 var 或者 val 定义一个变量。例如

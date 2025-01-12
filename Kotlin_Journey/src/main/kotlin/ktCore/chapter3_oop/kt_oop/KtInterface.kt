@@ -1,4 +1,4 @@
-package ktCore.chapter3_oop
+package ktCore.chapter3_oop.kt_oop
 
 import org.junit.jupiter.api.Test
 
@@ -26,7 +26,7 @@ interface IFlyer {
 interface ISwim{
     fun swim()
 }
-class Eagle : IFlyer{
+class Eagle : IFlyer {
     // 接口的实现必须要用get声明常量值
     override val speed: Int
         get() = 100
@@ -53,7 +53,7 @@ interface IAnimal {
     fun kind() = "类型是动物"
 }
 /** 通过接口方式实现多继承 */
-class Falcon(speed: Int, override val name: String) :IFlyer ,IAnimal {
+class Falcon(speed: Int, override val name: String) : IFlyer, IAnimal {
     override val speed: Int = speed // 可以通过把属性放到里边来定义，而不是默认构造函数。
 
     /** 如果是没有默认实现的 抽象方法，直接实现即可 */
@@ -86,7 +86,7 @@ open class Flyer(override val speed: Int) : IFlyer {
     }
 
 }
-open class Swim : ISwim{
+open class Swim : ISwim {
     override fun swim(){
         println("我能游泳")
     }
@@ -96,7 +96,7 @@ open class Swim : ISwim{
 /**
  * 通过委托的方式实现多继承
  */
-class Goose(flyer : IFlyer,swim : ISwim) : IFlyer by flyer,ISwim by swim {
+class Goose(flyer : IFlyer, swim : ISwim) : IFlyer by flyer, ISwim by swim {
 
 
 }

@@ -1,9 +1,11 @@
-package ktCore.chapter3_oop.other
+package ktCore.chapter3_oop.ktAccess
 
 import internal.KtAccessObject
 
-import ktCore.chapter3_oop.*
 import ktCore.chapter3_oop.ktData.OK
+import ktCore.chapter3_oop.kt_oop.BirdTest
+import ktCore.chapter3_oop.kt_oop.Penguin
+import ktCore.chapter3_oop.kt_oop.printObjectTest
 
 // 以下代码报错，编译器提示我将模块设置为public，而不是internal。
 //import internal.KtAccessObject2
