@@ -49,7 +49,40 @@ class KtDataType {
         println("Double Array: ${doubleArray.joinToString()}")
         println("String Array: ${stringArray.joinToString()}")
     }
+    /* 特别注意，kotlin中不区分原始数据类型和包装类。 Int类型可以为空 ,其他几个类型也可以为空。
+    * 我们知道，java中 ,int ,byte,short等的初始值是 o ,而 Integer , Byte ,Short等包装类的初始值是 null 。
+    * 故kotlin中才需要特别强调每个数据的初始值，你必须确定是 0 或者是 null ，或者是由你自己定义的一个初始值
+    * */
+    val intValue2 : Int? = null
+    val byteValue2: Byte? = null
+    val shortValue2: Short? = null
+    val longValue2: Long? = null
+    val doubleValue2: Double? = null
+    /*此处记录我在用java反射时的坑。一个数值类型的数据，它的类型在反射中 可能是是 int.class ，以及 Integer.TYPE ;
+    * Integer.class 对应的是  java.lang.Integer。Integer.TYPE 对应的是  int
+    *  */
+    @Test
+    fun integerTest(){
+        // 使用 Integer.class（Kotlin 中的表示）
+        //val integerClass: Class<Int> = Int::class.java
+        val a : Int = 200
+        val integerClass = a.javaClass
+        println("Int.class: ${integerClass.name}") // 输出：int
 
+        val i :Int? = 18
+        val integerClass2 = i?.javaClass
+        if (integerClass2 != null) {
+            println("Int?.class2: ${integerClass2.name}")// 输出： java.lang.Integer
+        }
+
+        // 使用 Integer.TYPE（Kotlin 中的表示）
+        val intType: Class<Int> = Integer.TYPE // Integer.TYPE 是java当中的语句
+        println("Integer.TYPE: ${intType.name}") // 输出：int
+
+        // 比较两者
+        println("Is Integer.class equal to Integer.TYPE? ${integerClass == intType}") // 输出：true
+        /* 可见 kotlin 将原始数据类型和 包装类合二为一，避免了装箱和开箱带来的开销，同时还避免了 类型转换带来的错误。 */
+    }
 }
 
 /**

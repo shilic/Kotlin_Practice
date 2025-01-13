@@ -9,9 +9,9 @@ class KtLoop {
 
     /* List 是一个有序的集合，可以包含重复元素。 */
     // 创建一个不可变的 List
-    val immutableList = listOf("apple", "banana", "cherry")
+    val immutableList : List<String> = listOf("apple", "banana", "cherry")
     // 创建一个可变的 List
-    val mutableList = mutableListOf("apple", "banana", "cherry");
+    val mutableList :  MutableList<String> = mutableListOf("apple", "banana", "cherry");
     // 添加元素到可变 List
     init{ mutableList.add("date") }
     // 访问元素
@@ -19,9 +19,9 @@ class KtLoop {
 
     /* Set 是一个无序的集合，不允许重复元素。*/
     // 创建一个不可变的 Set
-    val immutableSet = setOf("apple", "banana", "cherry")
+    val immutableSet : Set<String> = setOf("apple", "banana", "cherry")
     // 创建一个可变的 Set
-    val mutableSet = mutableSetOf("apple", "banana", "cherry")
+    val mutableSet :  MutableSet<String> = mutableSetOf("apple", "banana", "cherry")
     // 添加元素到可变 Set
     init { mutableSet.add("date") }
     // 检查元素是否存在
@@ -29,9 +29,9 @@ class KtLoop {
 
     /* Map 是一个键值对的集合，键是唯一的。 */
     // 创建一个不可变的 Map
-    val immutableMap = mapOf("apple" to 1, "banana" to 2, "cherry" to 3)
+    val immutableMap : Map<String ,Int> = mapOf("apple" to 1, "banana" to 2, "cherry" to 3)
     // 创建一个可变的 Map
-    val mutableMap = mutableMapOf("apple" to 1, "banana" to 2, "cherry" to 3)
+    val mutableMap : MutableMap<String ,Int> = mutableMapOf("apple" to 1, "banana" to 2, "cherry" to 3)
     // 添加元素到可变 Map
     init { mutableMap["date"] = 4 }
     // 访问元素
@@ -39,11 +39,24 @@ class KtLoop {
 
     /* 你也可以创建空集合，然后根据需要添加元素。*/
     // 创建一个空的不可变 List
-    val emptyList = emptyList<String>()
+    val emptyList : List<String> = emptyList<String>()
     // 创建一个空的不可变 Set
-    val emptySet = emptySet<String>()
+    val emptySet : Set<String> = emptySet<String>()
     // 创建一个空的不可变 Map
-    val emptyMap = emptyMap<String, Int>()
+    val emptyMap : Map<String ,Int> = emptyMap<String, Int>()
+
+    // 创建一个空的可变集合
+    val emptyMutableList : MutableList<String> = mutableListOf()
+    // 创建一个空的 ArrayList
+    val emptyArrayList : ArrayList<String> = arrayListOf()
+    //使用构造函数创建一个空的 ArrayList
+    val emptyArrayList2 : ArrayList<String> = ArrayList()
+    // 要创建一个空的可变 MutableMap，可以使用 mutableMapOf() 函数：
+    val emptyMutableMap: MutableMap<String, String> = mutableMapOf()
+    // 你也可以通过构造函数来创建一个空的 HashMap，它是 MutableMap 的一个具体实现：
+    val emptyHashMap: HashMap<String, String> = HashMap()
+
+
     /* 5. 使用 arrayListOf 和 hashSetOf  . Kotlin 还提供了一些快捷方式来创建基于特定实现的集合。 */
     // 创建一个 ArrayList
     val arrayList = arrayListOf("apple", "banana", "cherry")
@@ -64,8 +77,8 @@ class KtLoopTest {
         }
         println(str1.toString())
 
-        val str2 : StringBuilder = StringBuilder().append("2.范围表达式循环(step 2)：language : ")
-        for (i : Int in 0..5 step 2){ // 不包含6 ，也可以写作 0..(list.size-1)
+        val str2 : StringBuilder = StringBuilder().append("2.范围表达式循环：language : ")
+        for (i : Int in 0..5 ){ // 不包含6 ，也可以写作 0..(list.size-1)
             str2.append("[$i]=${list[i]}, ")
         }
         println(str2.toString())
@@ -115,6 +128,15 @@ class KtLoopTest {
                 }
             }
         }
+    }
+
+    // in 关键字还能用于判断 元素是否在集合中
+    @Test
+    fun inTest(){
+        val list =   KtLoop().languageList
+        val g = "Go" in list
+        val j = "java" in list
+        println("java在列表中吗？$j , Go在列表中吗？$g")
     }
 
 }
