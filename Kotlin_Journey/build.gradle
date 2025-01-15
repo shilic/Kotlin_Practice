@@ -5,15 +5,20 @@ plugins {
 
 group = 'me.kfb'
 version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        mavenLocal()
+        mavenCentral()
+    }
 }
-
 dependencies {
     implementation project(':Internal_Module')// 依赖 其他模块
     implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
-    implementation 'org.testng:testng:7.1.0'
+    implementation 'org.testng:testng:7.7.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.1")
@@ -24,10 +29,10 @@ dependencies {
 
 
     // http
-    implementation 'com.google.code.gson:gson:2.8.2' //(gson生成和解析库)
+    implementation 'com.google.code.gson:gson:2.8.9' //(gson生成和解析库)
     implementation 'com.squareup.okhttp3:okhttp:4.9.3' //(开源的网络请求库)
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1' //(支持okhttp跟踪到一个网络请求的所有状态，包括请求头、请求体、响应行、 响应体,方便调试)
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0' //(实现将HTTP请求转换为Java接口)
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0' //(实现将HTTP请求转换为Java接口)
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0' //(配合Rxjava 使用)
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0' //(转换器，请求结果转换成Model)
     implementation 'io.reactivex:rxandroid:1.2.1'
