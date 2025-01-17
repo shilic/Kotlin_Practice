@@ -18,48 +18,64 @@ class KtMethod {
         return a + b
     }
 
-    /** 表达式作为函数体，返回类型自动推断  */
+    /** sum1 使用 Lambda 表达式来定义一个函数，也就是使用 fun 关键字和 = 来定义 。返回值类型自动推断 <br>
+     * sum1 的返回值是一个 lambda 表达式 () → Int ，不是一个 Int 返回值。<br>
+     * 使用 m.sum1(1,1).invoke() 来执行
+     * */
     fun sum1(a: Int, b: Int) = { // () -> kotlin.Int，
         println("sum1 和是 ${(a+b)}" )
         //println("又做了一些操作")
         a + b
     }
 
-    /** 使用 Lambda 表达式来定义一个函数，也就是使用 fun 关键字和 = 来定义 。显示定义返回值类型<br>
-     * sum2的返回值是一个 lambda 表达式 () → Int ，不是一个 Int 返回值
+    /** sum2 使用 Lambda 表达式来定义一个函数，也就是使用 fun 关键字和 = 来定义 。显式 定义返回值类型<br>
+     * sum2的返回值是一个 lambda 表达式 () → Int ，不是一个 Int 返回值 <br>
+     * 使用 m.sum2(1,1).invoke() 来执行
      * */
     fun sum2(a: Int, b: Int): () -> Int = { // () -> kotlin.Int，
         println("sum2 和是 ${(a+b)}" )
         a + b
     }
 
-    /** 使用 run 函数，定义一个函数 ，返回值 kotlin.Int */
+    /** 使用 run 函数，定义一个函数 ，返回值 kotlin.Int 。具体使用和普通函数 sum0 一致  */
     fun sum3(a: Int, b: Int) = run {
         println("run表达式 ，sum3 和是 ${(a+b)}" )
         a + b
     }
-    /** 你也可以通过直接把参数定义到 lambda 中的方式实现 <br> 返回值： (kotlin.Int, kotlin.Int) -> kotlin.Int */
+    /** 你也可以通过直接把参数定义到 lambda 中的方式实现。 <br> 返回值： (kotlin.Int, kotlin.Int) -> kotlin.Int 。<br>
+     * 具体执行 由 invoke 去执行 。 m.sum4().invoke(2,2)  */
     fun sum4() : (Int, Int)-> Int = {
             a, b ->
         println("sum4 和是 ${(a+b)}" )
         a + b
     }
+    /** sum5 的写法，虽然使用了等号，但是没有使用花括号，故用法和普通函数sum0一致，  */
     fun sum5(a: Int, b: Int) = a + b
-    // 写法和 sum4如出一辙 。返回值： (kotlin.Int, kotlin.Int) -> kotlin.Int。只不过把参数定义放里边了
+    /**  sum6 写法和 sum4如出一辙 。返回值： (kotlin.Int, kotlin.Int) -> kotlin.Int。只不过把参数定义放里边了 */
     fun sum6() = {
             a:Int, b:Int ->
         println("sum4 和是 ${(a+b)}" )
         a + b
     }
     /*  sum4 的写法等价于 sumLambda1 的写法，返回值都是 (kotlin.Int, kotlin.Int) -> kotlin.Int  */
+    /** 柯里化风格编程 */
+    fun sum7(a:Int) = {
+        b:Int -> {
+            a + b
+        }
+    }
 
-    /** 使用 lambda 表达式 定义一个 函数，使用 val 关键字 和  lambda 表达式 。 (kotlin.Int, kotlin.Int) -> kotlin.Int*/
+    /** 使用 lambda 表达式 定义一个 函数，使用 val 关键字 和  lambda 表达式 。<br>
+     * 返回值 :(kotlin.Int, kotlin.Int) -> kotlin.Int <br>
+     * 你可以直接运行，re7 = m.sumLambda1(1,6) ; 也可以通过 invoke 运行 m.sumLambda1.invoke(1,7) ;
+     * */
     val sumLambda1: (Int, Int) -> Int = {
             x,y ->
         println("sumLambda(参数定义放外边) 和是 ${( x + y )}" )
         x+y
     }
 
+    /** 和 sumLambda1 如出一辙。 */
     val sumLambda2 = {
             x:Int,y:Int ->
         println("sumLambda(参数定义放里边) 和是 ${( x + y )}" )
@@ -85,13 +101,34 @@ class KtMethod {
 
 
 
+    fun reduce(a:Int ,b: Int) :Int {
+
+        return a-b
+    }
+
+
 
     /** 将函数作为一个参数 */
     fun useSum(a:Int , b:Int, sum : (Int,Int)->Int ) : Int {
         return sum.invoke(a,b)
     }
-}
 
+    /** 将函数作为一个返回值getOperation 是一个高阶函数，它接受一个 String 参数 operation，并返回一个函数类型 (Int, Int) -> Int。<br>
+    在 getOperation 中，我们使用 when 表达式来根据 operation 的值返回不同的函数引用（::sum0 或 ::reduce）。 */
+    fun getOperation(operation: String): (Int, Int) -> Int {
+        return when (operation) {
+            "sum" -> ::sum0
+            "reduce" -> ::reduce
+            else -> throw IllegalArgumentException("不支持的操作")
+        }
+    }
+}
+/**
+ * 使用一个 Int 来接收这个函数
+ */
+val sumLambda4 : Int.(Int) -> Int = {
+        other -> this + other // other -> plus(other)
+}
 class MethodTest(){
     val m = KtMethod()
     @Test
@@ -102,6 +139,7 @@ class MethodTest(){
     }
     @Test
     fun invokeTest(){
+        {x:Int -> println(x)}(1) ; // 直接运行的语法
         // lambda 代码块 可以通过 invoke 运行
         {
             println("invoke直接运行")
@@ -196,12 +234,27 @@ class MethodTest(){
             println("lambda1 和是 ${(a+b)}" )
             a + b
         })
-        // 如果 lambda 表达式在函数参数的末尾，那么就可以放到外边来写
+        // 如果 lambda 表达式在函数参数的末尾，那么就可以放到外边来写，俗称柯里化风格的函数调用
         m.useSum(1,6) { a:Int, b:Int -> // Int 类型可以省略
             println("lambda2 和是 ${(a + b)}")
             a + b
         }
        // m.useSum(1,3,m::sum5) // 运行通过。不使用大括号，就不是 lambda 语法
+    }
+    @Test
+    fun operationTest(){
+        // 获取加法操作
+        val sumOperation = m.getOperation("sum")
+        println("Sum 结果: ${sumOperation(5, 3)}")
+
+        // 获取减法操作
+        val reduceOperation = m.getOperation("reduce")
+        println("Reduce 结果: ${reduceOperation(5, 3)}")
+    }
+    @Test
+    fun test(){
+        val res1 = 2.sumLambda4(3) // 使用扩展
+        println(res1) // 5
     }
 
 }
