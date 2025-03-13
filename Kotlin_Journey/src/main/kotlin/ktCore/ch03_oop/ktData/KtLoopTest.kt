@@ -37,7 +37,7 @@ class KtLoop {
     // 访问元素
     val bananaValue = immutableMap["banana"]  // 2
 
-    /* 你也可以创建空集合，然后根据需要添加元素。*/
+    /* 你可以创建空集合，然后根据需要添加元素。*/
     // 创建一个空的不可变 List
     val emptyList : List<String> = emptyList<String>()
     // 创建一个空的不可变 Set
@@ -49,7 +49,7 @@ class KtLoop {
     val emptyMutableList : MutableList<String> = mutableListOf()
     // 创建一个空的 ArrayList
     val emptyArrayList : ArrayList<String> = arrayListOf()
-    //使用构造函数创建一个空的 ArrayList
+    // 使用构造函数创建一个空的 ArrayList
     val emptyArrayList2 : ArrayList<String> = ArrayList()
     // 要创建一个空的可变 MutableMap，可以使用 mutableMapOf() 函数：
     val emptyMutableMap: MutableMap<String, String> = mutableMapOf()

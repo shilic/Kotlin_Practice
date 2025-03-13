@@ -103,10 +103,10 @@ private class KtArray(){
     val doubleArray: DoubleArray = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
 
     //emptyArray() 函数用于创建一个空的数组。它的类型是 Array<T>
-    val emptyArray :Array<Int> = emptyArray<Int>()  //EmptyArray: []
+    val emptyArray : Array<Int> = emptyArray<Int>()  //EmptyArray: []
 
     //arrayOfNulls() 函数用于创建一个指定大小并包含 null 值的数组。
-    val nullArray :Array<Int?> = arrayOfNulls<Int>(5)  // 创建一个包含 5 个 null 的数组 //NullArray: [null, null, null, null, null]
+    val nullArray : Array<Int?> = arrayOfNulls<Int>(5)  // 创建一个包含 5 个 null 的数组 //NullArray: [null, null, null, null, null]
 
     //你可以将一个 List 转换为数组。
     val list = listOf(1, 2, 3, 4, 5)
@@ -116,7 +116,7 @@ private class KtArray(){
     //IntArray 构造函数允许你指定数组的大小，并且可以提供一个初始化器 lambda 表达式来设置每个元素的初始值。
     // 如果你不提供初始化器，所有元素的初始值将默认为 0。 Array则类似
     // 使用 IntArray 构造函数
-    val intArray0 = IntArray(5)  // 创建一个包含 5 个 0 的数组 相当于 java中的 int[] intArray = new int[5]
+    val intArray0  = IntArray(5)  // 创建一个包含 5 个 0 的数组 相当于 java中的 int[] intArray = new int[5]
     // 使用 IntArray 构造函数并提供初始化器
     val intArray0_ = IntArray(5) { 0 }  // 创建一个包含 5 个 0 的数组
     // 使用 Array 构造函数（不推荐用于基本类型）
