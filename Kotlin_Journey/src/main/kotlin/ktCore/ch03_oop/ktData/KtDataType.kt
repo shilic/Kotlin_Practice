@@ -109,18 +109,18 @@ private class KtArray(){
     val nullArray : Array<Int?> = arrayOfNulls<Int>(5)  // 创建一个包含 5 个 null 的数组 //NullArray: [null, null, null, null, null]
 
     //你可以将一个 List 转换为数组。
-    val list = listOf(1, 2, 3, 4, 5)
+    val list  = listOf(1, 2, 3, 4, 5)
     val arrayFromList = list.toTypedArray()
 
     /* 使用数组的构建函数，其他举例 */
     //IntArray 构造函数允许你指定数组的大小，并且可以提供一个初始化器 lambda 表达式来设置每个元素的初始值。
     // 如果你不提供初始化器，所有元素的初始值将默认为 0。 Array则类似
     // 使用 IntArray 构造函数
-    val intArray0  = IntArray(5)  // 创建一个包含 5 个 0 的数组 相当于 java中的 int[] intArray = new int[5]
+    val intArray0  : IntArray = IntArray(5)  // 创建一个包含 5 个 0 的数组 相当于 java中的 int[] intArray = new int[5]
     // 使用 IntArray 构造函数并提供初始化器
-    val intArray0_ = IntArray(5) { 0 }  // 创建一个包含 5 个 0 的数组
+    val intArray1 : IntArray = IntArray(5) { 0 }  // 创建一个包含 5 个 0 的数组
     // 使用 Array 构造函数（不推荐用于基本类型）
-    val array0 = Array(5) { 0 }  // 创建一个包含 5 个 0 的数组，但这是 Int 类型的对象数组
+    val array0 : Array<Int> = Array(5) { 0 }  // 创建一个包含 5 个 0 的数组，但这是 Int 类型的对象数组
     // 下边的代码报错， Array类型必须在后边接 lambda 表达式给数组元素赋初始值，而 IntArray(5) 则不需要接 lambda 表达式赋初始值，kotlin自动帮你赋值了
     // val array0_2 = Array(6)
 
@@ -130,6 +130,7 @@ private class KtArray(){
     //Array() 构造函数允许你创建一个指定大小并初始化每个元素的数组。你可以提供一个 lambda 表达式来设置每个元素的初始值。
     val stringArray2 :Array<String> = Array(3) { index -> "Fruit $index" }  // 创建一个包含 "Fruit 0", "Fruit 1", "Fruit 2" 的数组
     val strArray :Array<String> = Array(3) { " 初始值 " }
+    val nullArray2 :Array<String?> = Array(3) { null }
     //emptyArray<String>() 函数用于创建一个空的字符串数组。
     val emptyStringArray : Array<String> = emptyArray<String>()
     //arrayOfNulls<String>() 函数用于创建一个指定大小并包含 null 值的字符串数组。
@@ -156,7 +157,7 @@ private class KtArray(){
     @Test
     fun print0(){
         println("intArray0: ${intArray0.joinToString()}")
-        println("intArray0_: ${intArray0_.joinToString()}")
+        println("intArray0_: ${intArray1.joinToString()}")
         println("array0: ${array0.joinToString()}")
     }
 } // 数组类型
