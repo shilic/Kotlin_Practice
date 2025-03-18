@@ -163,7 +163,9 @@ class MethodTest(){
 
         // 只能在 invoke 中运行
         val re5 = m.sum4().invoke(2,2)
+        println("m.sum4() = ${m.sum4()}") // m.sum4() = (kotlin.Int, kotlin.Int) -> kotlin.Int
         println("运行  m.sum4().invoke(2,2)，结果：${re5}。\n")
+        println("m.sum6() = ${m.sum6()}") // m.sum6() = (kotlin.Int, kotlin.Int) -> kotlin.Int
 
         val re8 = m.sum5(2,3) // 使用等号定义的函数，可以直接使用。没有大括号，不是 lambda语法。
         //val re9 = m.sum5(2,3).invoke() // 没有大括号，就无法调用 invoke 函数，报错

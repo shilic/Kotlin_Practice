@@ -2,3 +2,20 @@
 Kotlin_Journey/.idea/workspace.xml
 Kotlin_Journey/.idea/workspace.xml
 Kotlin_Journey/.idea/workspace.xml
+*.iml
+.gradle
+Kotlin_Journey/local.properties
+Kotlin_Journey/.idea/caches
+Kotlin_JourneKotlin_Journeyy/.idea/libraries
+Kotlin_Journey/.idea/modules.xml
+Kotlin_Journey/.idea/workspace.xml
+Kotlin_Journey/.idea/navEditor.xml
+Kotlin_Journey/.idea/assetWizardSettings.xml
+.DS_Store
+Kotlin_Journey/build
+Kotlin_Journey/captures
+.externalNativeBuild
+.cxx
+local.properties
+# Compiled class file
+*.class

@@ -12,3 +12,7 @@ internal class KtAccessObject2{
         println(param)
     }
 }
+fun main() {
+    println("Hello World!")
+
+}
