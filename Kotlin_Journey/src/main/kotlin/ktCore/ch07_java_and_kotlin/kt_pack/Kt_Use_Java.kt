@@ -3,8 +3,26 @@ package ktCore.ch07_java_and_kotlin.kt_pack
 import ktCore.ch07_java_and_kotlin.java_pack.JavaTool
 import ktCore.ch07_java_and_kotlin.java_pack.JavaUser
 import ktCore.ch07_java_and_kotlin.java_pack.JavaUserDao
+import ktCore.ch07_java_and_kotlin.java_pack.OnClickListener
+import org.junit.jupiter.api.Test
+import javax.swing.text.View
 
 class Kt_Use_Java {
+}
+
+class MyButton  {
+    lateinit var event : OnClickListener
+
+    fun setOnClickListener(event : OnClickListener){
+        this.event = event
+    }
+    @Test
+    fun test(){
+        val button : MyButton = MyButton()
+        button.setOnClickListener{
+                view -> println("Clicked")
+        }
+    }
 }
 
 fun main() {
@@ -51,6 +69,8 @@ fun main() {
     javaUser.info = "new" // set
     // 以下代码报错，没有设置 get和set
     // val value1 = javaUser.value
+    val boolValue = javaUser.isBoolValue // get 这行代码正常运行
+    javaUser.isBoolValue = true // set方法
 
 
     // 5. 调用java的普通方法
@@ -59,7 +79,22 @@ fun main() {
     javaTool.`fun`("hello")
     // 调用普通方法
     javaTool.normalFun("hello")
-    // 以下代码都不会报错，对于一个可能返回
+    // 以下代码都不会报错，对于一个可能返回 null
     val nullValue1 : String = javaTool.nullFun()
     val nullValue2 : String? = javaTool.nullFun()
+
+    // 6. 集合
+    val ktList1 : List<JavaUser> = javaTool.users
+    //ktList1.add() // 只读，没有add 方法
+    val ktList2 = javaTool.users // 自动类型识别，识别成了 MutableList<JavaUser!> 类型
+    ktList2.add(JavaUser(10,"梨子"))
+
+
+    // 7. 异常
+    // java的异常， 无论是受检查异常 还是 运行时异常，kotlin都不要求强制捕获
+    javaTool.exceptionFun()
+    javaTool.runtimeExceptionFun()
+
+
+
 }

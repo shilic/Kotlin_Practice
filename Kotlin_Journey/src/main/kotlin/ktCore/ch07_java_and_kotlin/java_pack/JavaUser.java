@@ -7,51 +7,39 @@ import java.util.Objects;
 
 /** 一个普通的java类  */
 public class JavaUser {
-
-    /** 不可能为 null 的值 */
+    /** 非空类型：不可能为 null 的值 */
     private final int id ;
-    /** 不可能为 null 的值。使用 @NotNull 注解，显示指定一个不为空的值 */
+    /** 非空类型：不可能为 null 的值。使用 @NotNull 注解，显示指定一个不为空的值 */
     @NotNull
     private final String name ;
-
-    /** 一个可能为 null 的值 */
+    /** 平台类型：一个可能为 null 的值 */
     private String info ;
-
-    /** 显示指定有可能为 null 的值 */
+    /** 可空类型：显示指定有可能为 null 的值 */
     @Nullable
     private String nullValue = null;
-
     /** 没有设置 get 和set 的值 */
     private String value = null;
-
     private Boolean boolValue = false;
-
 
     public Boolean isBoolValue() {
         return boolValue;
     }
-
     public void setBoolValue(Boolean boolValue) {
         this.boolValue = boolValue;
     }
-
     public void setNullValue(@Nullable String nullValue) {
         this.nullValue = nullValue;
     }
-
     @Nullable
     public String getNullValue() {
         return nullValue;
     }
-
     public String getInfo() {
         return info;
     }
-
     public void setInfo(String info) {
         this.info = info;
     }
-
     public JavaUser(int id, @NotNull String name) {
         this.id = id;
         this.name = name;
@@ -60,11 +48,12 @@ public class JavaUser {
     public int getId() {
         return id;
     }
-
     @NotNull
     public String getName() {
         return name;
     }
+
+
 
     @Override
     public String toString() {
@@ -73,7 +62,6 @@ public class JavaUser {
                 ", name='" + name + '\'' +
                 '}';
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
