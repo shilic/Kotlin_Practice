@@ -2,12 +2,12 @@
 @file:JvmName("ExtUtils")
 package ktCore.ch07_java_and_kotlin.kt_pack
 
-fun a(): String {
+fun funC(): String {
     //...
-    return "aaa"
+    return "ccc"
 }
 
-fun b(): String {
+fun funB(): String {
     //...
     return "bbb"
 }
