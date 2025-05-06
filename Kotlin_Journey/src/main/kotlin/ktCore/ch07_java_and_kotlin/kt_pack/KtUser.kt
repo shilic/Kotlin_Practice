@@ -6,5 +6,5 @@ data class KtUser(val id : Int,val name : String){
     /** 同样的，kt 中一个可以为 null 的变量 。 */
     var de: String? = null
 
-    val list1 : List<String> = List()
+    //val list1 : List<String> = List()
 }
