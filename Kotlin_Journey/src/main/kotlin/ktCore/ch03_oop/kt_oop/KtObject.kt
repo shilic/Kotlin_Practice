@@ -39,8 +39,7 @@ fun main() {
     //你也可以手动用于创建一个匿名内部类
     // 可以用于实现一个接口
     val bird : IFlyer = object : IFlyer {
-        override val speed: Int
-            get() = 80
+        override var speed: Int = 0
 
         override fun fly() {
             println("我能飞")

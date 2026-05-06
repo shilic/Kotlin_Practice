@@ -22,7 +22,7 @@ open class GenericsToken<T> {
 
 class TypeTest(){
     @Test
-    fun typeTest1(args: Array<String>) {
+    fun typeTest1() {
         /* 获取一个类的类型，通常通过 Apple::class.java 语句。而泛型，因为存在类型擦除，不可以直接获取集合中的泛型。
         * 但是可以通过 list2.javaClass.genericSuperclass 语句获取自身及集合元素的类型
         *  */

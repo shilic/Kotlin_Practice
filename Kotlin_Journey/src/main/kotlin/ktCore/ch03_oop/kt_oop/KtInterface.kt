@@ -8,7 +8,7 @@ interface KtInterface {
 interface IFlyer {
     // kotlin中虽然可以定义字段，但是在内部确实通过 getSpeed() 实现的。见下边的实现类Eagle，实现类必须手动实现get方法。
     // 实际上kotlin中的接口并没有常量，故kotlin中通过一个get方法来实现了接口常量。
-    val speed :Int
+    var speed :Int
     // java中不可以定义没有初始值的字段，必须要有明确的初始值，在kotlin中通过 val 加 get 方式来实现一个常量。
     val height :Int
         get() = 5000
@@ -26,10 +26,9 @@ interface IFlyer {
 interface ISwim{
     fun swim()
 }
-class Eagle : IFlyer {
-    // 接口的实现必须要用get声明常量值
-    override val speed: Int
-        get() = 100
+class Eagle(
+    override var speed: Int
+) : IFlyer {
 
     override fun kind() :String {
         return "我是鹰酱"
@@ -53,8 +52,11 @@ interface IAnimal {
     fun kind() = "类型是动物"
 }
 /** 通过接口方式实现多继承 */
-class Falcon(speed: Int, override val name: String) : IFlyer, IAnimal {
-    override val speed: Int = speed // 可以通过把属性放到里边来定义，而不是默认构造函数。
+class Falcon(
+    // 可以通过把属性放到里边来定义，而不是默认构造函数。
+    override var speed: Int,
+    override val name: String
+) : IFlyer, IAnimal {
 
     /** 如果是没有默认实现的 抽象方法，直接实现即可 */
     override fun eat() {
@@ -76,7 +78,7 @@ class Falcon(speed: Int, override val name: String) : IFlyer, IAnimal {
 
 
 /* 通过委托的方式实现多继承,需要两个已经实现好了的类 */
-open class Flyer(override val speed: Int) : IFlyer {
+open class Flyer(override var speed: Int) : IFlyer {
     override fun fly() {
         println("我能飞")
     }
@@ -92,22 +94,43 @@ open class Swim : ISwim {
     }
 
 }
-
+interface KeyInterface   {
+    var key: String
+}
 /**
  * 通过委托的方式实现多继承
  */
-class Goose(flyer : IFlyer, swim : ISwim) : IFlyer by flyer, ISwim by swim {
+class Goose(flyer : IFlyer, swim : ISwim, var mName : String) : IFlyer by flyer, ISwim by swim, KeyInterface, IAnimal{
+    override val name: String
+        get() = mName
 
+    override fun  kind(): String {
+        TODO("Not yet implemented")
+    }
 
+    override var key: String = ""
+//        get() = mName
+//        set(value) { mName = value }
 }
 class GooseTest{
     @Test
     fun gooseTest() {
         val flyer = Flyer(80)
         val swim = Swim()
-        val goose : Goose = Goose(flyer,swim)
+        val goose : Goose = Goose(flyer, swim, "鹅").apply {
+            key = "鹅关键字"
+        }
         goose.fly()
         goose.swim()
+        goose.apply {
+            println("我的初始速度是${speed}, 我是${name}, key = $key")
+        }
+        goose.apply {
+            speed = 8000
+            mName = "大鹅"
+            key = "新的关键字"
+        }
+        println("修改数据后, 我的速度是${goose.speed}, 我是${goose.name}, key = ${goose.key}")
     }
 }
 
@@ -147,7 +170,7 @@ class InterfaceTest{
         val greeting = greet(playerName)
 
         // 实现一个函数式接口
-        val doubleComparator = FunInterface<Double>() {
+        val doubleComparator = FunInterface<Double> {
             // 需要: (TypeVariable(T)!, TypeVariable(T)!) → Int
                 d1, d2 -> d1.compareTo(d2)
         }
