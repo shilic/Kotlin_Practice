@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.24'
     id 'application'
 }
 
@@ -37,7 +37,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0' //(转换器，请求结果转换成Model)
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'io.reactivex:rxjava:1.2.1'
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.21"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.24"
     //(一种帮助你做异步的框架. 类似于 AsyncTask. 但其灵活性和扩展性远远强于前者. 从能力上讲, 如果说 AsycnTask 是 DOS 操作系统, RxJava 是 Window 操作系统。)
 
 }
@@ -57,5 +57,5 @@ compileTestKotlin {
 }
 
 application {
-    mainClassName = 'MainKt'
+    mainClass.set('MainKt')
 }
