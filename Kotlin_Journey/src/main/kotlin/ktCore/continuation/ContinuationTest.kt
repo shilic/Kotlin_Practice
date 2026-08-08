@@ -94,7 +94,12 @@ class ContinuationTest {
             }
         }
     }
-
+    fun test5() {
+        val job = GlobalScope.launch(Dispatchers.Default) {
+            delay(1000.milliseconds)
+            println("In job")
+        }
+    }
 
 }
 
