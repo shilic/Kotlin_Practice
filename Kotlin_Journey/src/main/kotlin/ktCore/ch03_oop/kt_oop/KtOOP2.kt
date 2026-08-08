@@ -25,7 +25,7 @@ class Child2 : Father() {
     // }
 }
 
-// ❌ 非法 — 参数变宽
+// ❌ 非法 — 参数变宽(理论上可以，但JVM拒绝)
 class Child3 : Father() {
     // override fun func1(data: GrandpaData): FatherData {
     //     return FatherData(data.value + 1)
