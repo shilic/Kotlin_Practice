@@ -63,8 +63,9 @@ class ContinuationTest {
         // JobSupport
         println("deferred.await() = ${Await of deferred}")
         val job = launch(Dispatchers.Default) {
-            // 死循环也可以取消
-            while (true) {
+            // 有delay函数，死循环也可以取消；没有，则无法取消；故，使用 isActive 检查才是正解
+            while (isActive) {
+                // ← 这是挂起点，也是取消检查点
                 delay(100.milliseconds)
                 println("In job")
             }
