@@ -18,10 +18,18 @@ fun <T> ArrayList<T>.find(t: T): T? {
 
 class Plate<T>(val t: T)
 
-open class Fruit(val weight: Double)
+open class Fruit(val weight: Double = 0.0){
+    fun eatFruit(){
+        println("eat Fruit")
+    }
+}
 
-class Apple(weight: Double): Fruit(weight)
-class Banana(weight: Double): Fruit(weight)
+class Apple(weight: Double = 0.0): Fruit(weight){
+    fun eatApple() {
+        println("eat Apple")
+    }
+}
+class Banana(weight: Double = 0.0): Fruit(weight)
 
 class FruitPlate<T: Fruit>(val t: T)
 

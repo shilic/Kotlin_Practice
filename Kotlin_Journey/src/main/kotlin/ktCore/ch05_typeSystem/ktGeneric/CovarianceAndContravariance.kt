@@ -24,12 +24,13 @@ fun copy(dest: Array<Double?>, src: Array<Double>) {
         src.forEachIndexed {index, _ -> dest[index] = src[index]}
     }
 }
-
 fun <T> copy(dest: Array<T?>, src: Array<T>) {
     if (dest.size < src.size) {
         throw IndexOutOfBoundsException()
     } else {
         src.forEachIndexed {index, _ -> dest[index] = src[index]}
+        //  ❌ 以下代码报错
+        // src.forEachIndexed {index, _ -> src[index] = dest[index]}
     }
 }
 
@@ -42,9 +43,10 @@ fun <T> copyIn(dest: Array<in T>, src: Array<T>) {
         throw IndexOutOfBoundsException()
     } else {
         src.forEachIndexed {index, _ -> dest[index] = src[index]}
+        //  ❌ 以下代码报错
+        // src.forEachIndexed {index, _ -> src[index] = dest[index]}
     }
 }
-
 /**
  * 泛型的协变 out 相当于java中的 method< ? extends T> , ?是T的子类。
  * 也就是说 "out T" 是 T 的子类;   顾名思义，就是从T中读出，那么也就只能是 ? extends T ,也就是 T的子类。只读，读出来是T的子类，这样才可以保证类型安全
@@ -56,35 +58,57 @@ fun <T> copyOut(dest: Array<T>, src: Array<out T>) {
         throw IndexOutOfBoundsException()
     } else {
         src.forEachIndexed {index, _ -> dest[index] = src[index]}
+        //  ❌ 以下代码报错
+        // src.forEachIndexed {index, _ -> src[index] = dest[index]}
     }
 }
 // 两个函数的写法其实是一样的，都是将 src 拷贝到 dest 中。src 中的数据必须是 dest 中的子类。
+
+
+
+
 
 fun main(args: Array<String>) {
 
     val doubleList = mutableListOf(2.0,3.0)
     doubleList.sortWith(doubleComparator)
-
     doubleList.sortWith(numberComparator)
-
     val intList = mutableListOf(1,2)
     intList.sortWith(numberComparator)
 
-    var dest = arrayOfNulls<Double>(3)
+    val fruitArray : Array<Fruit?> = arrayOfNulls<Fruit?>(3)
+
+    val appleArray : Array<Apple?> = arrayOfNulls<Apple?>(3)
+    // ❌ Kotlin 禁止这行, 但是 java 允许
+    // val fruitArray : Array<Fruit?> = appleArray
+    // 如果允许，这里往 Apple 数组塞了 Banana
+    // fruitArray[0] = Banana()
+    // 拿出来还以为是 Apple → 💥 类型炸了
+    //val apple: Apple? = appleArray[0]
+
+
+
+    val dest = arrayOfNulls<Double>(3)
     val src = arrayOf(1.0,2.0,3.0)
 
-
     copy(dest, src)
-
-    var destDouble = arrayOfNulls<Double>(3)
+    val destDouble = arrayOfNulls<Double>(3)
     val srcDouble = arrayOf(1.0,2.0,3.0)
     copy(destDouble, srcDouble)
 
-    var destInt = arrayOfNulls<Int>(3)
+    val destInt = arrayOfNulls<Int>(3)
     val srcInt = arrayOf(1,2,3)
     copy(destInt, srcInt)
 
+
+
     copyIn(dest, src)
+
     copyOut(dest, src)
+
+    // Fruit 是 Apple父类，
+    copyIn(fruitArray, appleArray)
+    // ❌  报错
+    // copyIn(appleArray, fruitArray)
 
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.concurrent.thread
 import kotlin.coroutines.*
@@ -86,6 +87,14 @@ class ContinuationTest {
             }
         }
     }
+    suspend fun test6() {
+        val job = supervisorScope {
+            launch(Dispatchers.Default) {
+                delay(1000.milliseconds)
+                println("In job")
+            }
+        }
+    }
     fun test4() {
         val job = runBlocking {
             launch(Dispatchers.Default) {
@@ -100,6 +109,7 @@ class ContinuationTest {
             println("In job")
         }
     }
+
 
 }
 
