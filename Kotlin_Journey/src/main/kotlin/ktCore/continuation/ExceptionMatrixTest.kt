@@ -346,7 +346,9 @@ suspend fun asyncRunBlocking_tryAwait() {
             println("   这行永远不会打印 💀")
         }
     } catch (e: CancellationException) {
-        println("   💀 runBlocking 因取消而结束")
+        println("   💀 runBlocking 因取消而结束(CancellationException)")
+    } catch (e: Exception) {
+        println("   💀 runBlocking re-throw 了原始异常(${e::class.simpleName}: ${e.message})")
     }
     println("   → 结论: catch 只捕获了值，Job 早已被取消，runBlocking 内后续全死\n")
 }
@@ -367,7 +369,9 @@ suspend fun asyncRunBlocking_innerTry() {
             println("   这行不会打印")
         }
     } catch (e: CancellationException) {
-        println("   💀 runBlocking 因取消而结束")
+        println("   💀 runBlocking 因取消而结束(CancellationException)")
+    } catch (e: Exception) {
+        println("   💀 runBlocking re-throw 了原始异常(${e::class.simpleName}: ${e.message})")
     }
     println("   → 结论: 内部 try 接住了，但 runBlocking Job 已被取消\n")
 }
