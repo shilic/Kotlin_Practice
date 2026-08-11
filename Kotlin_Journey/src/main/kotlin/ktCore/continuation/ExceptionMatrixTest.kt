@@ -184,7 +184,7 @@ fun launchRunBlocking_outerTry() {
     try {
         runBlocking {
             launch { delay(50); error("💥子异常") }
-            launch { delay(100); println("   兄弟完成? 不会打印") }
+            launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成? 不会打印")  }
             delay(200)
         }
     } catch (e: Exception) {
@@ -219,14 +219,16 @@ fun launchGlobalScope_CEH() {
 /** #1 🟡 coroutineScope: try 包在 coroutineScope 外部 + async */
 suspend fun asyncCoroutineScope_outerTry() {
     println("\n=== #1 🟡 async + coroutineScope + try 包外部 ===")
-    try {
-        coroutineScope {
-            async { delay(50); error("💥子异常"); 1 }
-            async { delay(100); println("   兄弟完成? 不会打印"); 1 }
-            delay(200)
+    supervisorScope {
+        try {
+            coroutineScope {
+                async { delay(50); error("💥子异常"); 1 }
+                async {  println("   兄弟尝试..."); delay(200); println("   兄弟完成? 不会打印") ; 1 }
+                delay(200)
+            }
+        } catch (e: Exception) {
+            println("   ✅ catch 捕获: ${e.message}")
         }
-    } catch (e: Exception) {
-        println("   ✅ catch 捕获: ${e.message}")
     }
     println("   → 结论: coroutineScope re-throw → 外部接住，但兄弟全灭\n")
 }
@@ -234,17 +236,20 @@ suspend fun asyncCoroutineScope_outerTry() {
 /** #2 🟡 coroutineScope: try 包在 await() 外部 */
 suspend fun asyncCoroutineScope_tryAwait() {
     println("\n=== #2 🟡 async + coroutineScope + try 包 await 外部 ===")
-    coroutineScope {
-        val failing = async { delay(50); error("💥子异常"); 1 }
-        val normal  = async { delay(100); println("   兄弟完成? 不会打印"); 1 }
-        try {
-            failing.await()
-        } catch (e: Exception) {
-            println("   ✅ catch 捕获值: ${e.message}")
+    supervisorScope{
+        coroutineScope {
+            val failing = async { delay(50); error("💥子异常"); 1 }
+            val normal  = async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+            try {
+                failing.await()
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获值: ${e.message}")
+            }
+            delay(200)
+            println("   这行不会打印")
         }
-        delay(200)
-        println("   这行不会打印")
     }
+
     println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
 }
 
