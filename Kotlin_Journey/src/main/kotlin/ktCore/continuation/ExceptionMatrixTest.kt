@@ -141,6 +141,30 @@ suspend fun launchSupervisorScope_tryOutsideLaunch() {
     println("   → 结论: try 包 launch 外面抓不到! supervisorScope 不向上传播，异常被吞了\n")
 }
 
+/** #7.5 验证: supervisorScope 是否向父协程 re-throw 未处理的异常? */
+suspend fun launchSupervisorScope_propagateToParent() {
+    println("\n=== #7.5 验证 supervisorScope 是否向父协程 re-throw ===")
+    try {
+        coroutineScope {  // ← 父级 (fail-fast)
+            supervisorScope {
+                // 子 launch 没有 CEH，没有 try-catch
+                launch { delay(50); error("💥子异常") }
+                // supervisorScope 内兄弟 — 用来证明 supervisorScope 不取消兄弟
+                launch { delay(100); println("   [svScope内] 兄弟完成 ✅") }
+                delay(200)
+                println("   [svScope内] block 正常结束")
+            }
+            // 父级兄弟 — "证人"：如果 coroutineScope 被取消，这行不会打印
+            launch { delay(300); println("   [父级证人] 我还活着! ✅") }
+            delay(350)
+            println("   [父级] coroutineScope 继续执行 ✅ — 异常被吞了")
+        }
+    } catch (e: Exception) {
+        println("   [父级] catch 捕获: ${e.message} — supervisorScope 把异常传上来了!")
+    }
+    println("   → 看 [父级证人] 和 [父级] 哪个打印了就知道结果\n")
+}
+
 /** #8 🟢 supervisorScope: launch 内部嵌套 coroutineScope + try */
 suspend fun launchSupervisorScope_innerCoroutineScope() {
     println("\n=== #8 🟢 launch + supervisorScope + 内部 coroutineScope + try ===")
@@ -542,6 +566,7 @@ fun main() = runBlocking {
     launchSupervisorScope_CEH()           // #5  🟢
     launchSupervisorScope_innerTry()      // #6  🟢
     launchSupervisorScope_tryOutsideLaunch() // #7 🔴
+    launchSupervisorScope_propagateToParent() // #7.5 验证supervisorScope是否向父协程re-throw
     launchSupervisorScope_innerCoroutineScope() // #8 🟢
 
     launchRunBlocking_CEH()              // #9  🟡 ←CEH只打印不阻止传播

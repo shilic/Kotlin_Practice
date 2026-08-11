@@ -43,6 +43,8 @@ supervisorScope {
 }
 ```
 - 子协程各自独立，一个挂了别人不受影响
+- **四大作用域中唯一不向上传播子异常的**：子协程异常在 supervisorScope 层被截断
+- ⚠️ 代价：不用 CEH 或 try-catch 处理的话，异常静默丢失
 - 但注意：supervisorScope 自己的 block 抛了异常，照样往外传（只拦 Job 层级，不拦调用栈）
 - 适合：一组互不依赖的独立任务
 
@@ -179,7 +181,7 @@ launch {                                launch {
 | 4 | `coroutineScope` | `launch { try { coroutineScope{ launch } } catch }` | ✅ 防火墙 | ✅ | 🟢 |
 | 5 | `supervisorScope` | `launch(CEH) { ... }` | ✅ CEH消费 | ✅ | 🟢 |
 | 6 | `supervisorScope` | `launch { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
-| 7 | `supervisorScope` | `try { launch } catch` | ❌ | ✅ 但异常泄露 | 🔴 |
+| 7 | `supervisorScope` | `try { launch } catch` | ❌ | ✅ 但异常静默丢失 | 🔴 |
 | 8 | `supervisorScope` | `launch { try { coroutineScope{ launch } } catch }` | ✅ | ✅ | 🟢 |
 | 9 | `runBlocking` | `launch(CEH) { ... }` | ❌ CEH只打印 | 💀 | 🟡 |
 | 10 | `runBlocking` | `launch { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
@@ -260,7 +262,8 @@ GlobalScope       🟢     ❌    🟢           🟢     🟢         ❌    �
 5. **coroutineScope/runBlocking re-throw 的是根因异常**，不是 CancellationException
 6. **CEH 的行为取决于作用域**：supervisorScope 中能消费异常；coroutineScope/runBlocking 中只打印
 7. **CEH 对 async 完全无效**，只能用 await + try-catch
-8. **选作用域**：一个挂全停用 coroutineScope，各管各的用 supervisorScope，桥接用 runBlocking，别用 GlobalScope
+8. **supervisorScope 不向父协程传播子异常**：是四大作用域中唯一截断子异常向上传播的。代价是：没用 CEH 或 try-catch 的话，异常静默丢失
+9. **选作用域**：一个挂全停用 coroutineScope，各管各的用 supervisorScope，桥接用 runBlocking，别用 GlobalScope
 
 ---
 
@@ -464,7 +467,44 @@ suspend fun launchSupervisorScope_tryOutsideLaunch() {
 ```
 - try 在 launch 外面 → 抓不到
 - supervisorScope 不取消兄弟 → 兄弟正常完成
-- ⚠️ 但 supervisorScope 会把未处理的异常 re-throw 到父协程！如果父协程没有处理，会导致父协程被取消
+- ⚠️ 异常在 supervisorScope 层被截断，**不会**传到父协程 — 四大作用域中唯一不向上传播的
+- 但这也意味着：不用 CEH 或 try-catch 的话，异常就**静默丢失**了
+
+---
+
+### #7.5 验证：supervisorScope 不向父协程传播异常
+
+```kotlin
+suspend fun launchSupervisorScope_propagateToParent() {
+    try {
+        coroutineScope {          // ← 父级 (fail-fast)
+            supervisorScope {
+                launch { delay(50); error("💥子异常") }  // 无 CEH，无 try
+                launch { delay(100); println("   [svScope内] 兄弟完成 ✅") }
+                delay(200)
+                println("   [svScope内] block 正常结束")
+            }
+            // 父级证人：如果 coroutineScope 被取消就走不到这里
+            launch { delay(300); println("   [父级证人] 我还活着! ✅") }
+            delay(350)
+            println("   [父级] coroutineScope 继续执行 ✅")
+        }
+    } catch (e: Exception) {
+        println("   [父级] catch 捕获: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   [svScope内] 兄弟完成 ✅
+   [svScope内] block 正常结束
+   [父级证人] 我还活着! ✅
+   [父级] coroutineScope 继续执行 ✅
+```
+- supervisorScope 内的兄弟正常完成 ✅（不取消兄弟）
+- 父级证人活着 ✅（不向父协程传播）
+- **证明：supervisorScope 是四大作用域中唯一不向上传播子异常的作用域**
 
 ---
 
