@@ -252,7 +252,9 @@ suspend fun asyncCoroutineScope_tryAwait() {
                 println("   这行不会打印")
             }
         } catch (e: CancellationException) {
-            println("   💀 coroutineScope 因取消而结束")
+            println("   💀 coroutineScope 因取消而结束(CancellationException)")
+        } catch (e: Exception) {
+            println("   💀 coroutineScope 因取消而结束(${e::class.simpleName}: ${e.message})")
         }
     }
     println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
