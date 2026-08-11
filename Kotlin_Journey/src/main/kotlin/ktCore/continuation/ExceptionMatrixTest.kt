@@ -328,17 +328,23 @@ suspend fun asyncSupervisorScope_CEH() {
 /** #7 🟡 runBlocking: try 包在 await() 外部 —— 经典陷阱! */
 suspend fun asyncRunBlocking_tryAwait() {
     println("\n=== #7 🟡 async + runBlocking + try 包 await 外部 ——⚠️ 经典陷阱 ===")
-    runBlocking {
-        val failing = async { delay(50); error("💥子异常"); 1 }
-        val normal  = async { delay(100); println("   兄弟完成? 不会打印"); 1 }
-        try {
-            failing.await()
-        } catch (e: Exception) {
-            println("   ✅ catch 捕获值: ${e.message}")
-            println("   ⚠️ 我以为没事了...")
+    try {
+        runBlocking {
+            val failing = async { delay(50); error("💥子异常"); 1 }
+            val normal  = async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+            try {
+                failing.await()
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获值: ${e.message}")
+                println("   ⚠️ 我以为没事了...")
+            }
+            // 走到这里时 runBlocking 的 Job 已被取消
+            // delay 是挂起点，检查到 Job 已取消 → 抛 CancellationException
+            delay(200)
+            println("   这行永远不会打印 💀")
         }
-        delay(200)
-        println("   这行永远不会打印 💀")
+    } catch (e: CancellationException) {
+        println("   💀 runBlocking 因取消而结束")
     }
     println("   → 结论: catch 只捕获了值，Job 早已被取消，runBlocking 内后续全死\n")
 }
