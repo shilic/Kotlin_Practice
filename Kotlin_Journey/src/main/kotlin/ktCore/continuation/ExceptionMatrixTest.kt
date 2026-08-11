@@ -352,15 +352,20 @@ suspend fun asyncRunBlocking_tryAwait() {
 /** #8 🟡 runBlocking: try 包在 async 内部 */
 suspend fun asyncRunBlocking_innerTry() {
     println("\n=== #8 🟡 async + runBlocking + try 包内部 ===")
-    runBlocking {
-        async {
-            try { delay(50); error("💥子异常") }
-            catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
-            1
+    try {
+        runBlocking {
+            async {
+                try { delay(50); error("💥子异常") }
+                catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
+                1
+            }
+            async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+            // 走到这里时 runBlocking 的 Job 已被 async 异常取消
+            delay(150)
+            println("   这行不会打印")
         }
-        async { delay(100); println("   兄弟完成? 不会打印"); 1 }
-        delay(150)
-        println("   这行不会打印")
+    } catch (e: CancellationException) {
+        println("   💀 runBlocking 因取消而结束")
     }
     println("   → 结论: 内部 try 接住了，但 runBlocking Job 已被取消\n")
 }
