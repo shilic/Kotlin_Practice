@@ -568,9 +568,9 @@ fun main() = runBlocking {
     compareScopes()
 
     println("\n═══════════════════════════════════════════")
-    println("  全部 21 种组合测试完毕!")
+    println("  全部 22 种组合测试完毕!")
     println("  🟢 = 12种 (内部catch / supervisorScope / coroutineScope防火墙)")
-    println("  🟡 = 6种  (捕获了但兄弟已灭)")
+    println("  🟡 = 7种  (捕获了但兄弟已灭)")
     println("  🔴 = 3种  (完全没捕获)")
     println("═══════════════════════════════════════════\n")
 }
