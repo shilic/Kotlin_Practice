@@ -202,7 +202,7 @@ fun launchRunBlocking_outerTry() {
 fun launchGlobalScope_CEH() {
     println("\n=== #11 🟢 launch + GlobalScope + CEH ===")
     val job1 = GlobalScope.launch(CEH) { delay(50); error("💥子异常") }
-    val job2 = GlobalScope.launch { delay(100); println("   兄弟完成 ✅") }
+    val job2 = GlobalScope.launch { println("   兄弟尝试...");delay(100); println("   兄弟完成 ✅") }
     runBlocking {
         job1.join()
         job2.join()
@@ -240,7 +240,7 @@ suspend fun asyncCoroutineScope_tryAwait() {
         try {
             coroutineScope {
                 val failing = async { delay(50); error("💥子异常"); 1 }
-                val normal  = async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+                val normal  = async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
                 try {
                     failing.await()
                 } catch (e: Exception) {
@@ -269,7 +269,7 @@ suspend fun asyncCoroutineScope_innerTry() {
             catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
             1
         }
-        async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+        async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
         delay(200)
     }
     println("   → 结论: 内部接住了，但兄弟仍被取消 —— async 异常在发生时已传播\n")
@@ -285,7 +285,7 @@ suspend fun asyncSupervisorScope_tryAwait() {
     println("\n=== #4 🟢 async + supervisorScope + try 包 await 外部 ===")
     supervisorScope {
         val failing = async { delay(50); error("💥子异常"); 1 }
-        val normal  = async { delay(100); println("   兄弟完成 ✅"); 1 }
+        val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
         try {
             failing.await()
         } catch (e: Exception) {
@@ -306,7 +306,7 @@ suspend fun asyncSupervisorScope_innerTry() {
             catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
             1
         }
-        async { delay(100); println("   兄弟完成 ✅"); 1 }.await()
+        async { println("   兄弟尝试...");delay(100); println("   兄弟完成 ✅"); 1 }.await()
     }
     println("   → 结论: 完美，兄弟不受影响\n")
 }
@@ -316,7 +316,7 @@ suspend fun asyncSupervisorScope_CEH() {
     println("\n=== #6 🔴 async + supervisorScope + CEH(无效!) ===")
     supervisorScope {
         async(CEH) { delay(50); error("💥子异常"); 1 }  // CEH 被忽略
-        async { delay(100); println("   兄弟完成 ✅"); 1 }.await()
+        async { println("   兄弟尝试...");delay(100); println("   兄弟完成 ✅"); 1 }.await()
         delay(150)
     }
     println("   → 结论: CEH 对 async 完全无效! 异常被吞了，必须用 await + try-catch\n")
@@ -333,7 +333,7 @@ suspend fun asyncRunBlocking_tryAwait() {
     try {
         runBlocking {
             val failing = async { delay(50); error("💥子异常"); 1 }
-            val normal  = async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+            val normal  = async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
             try {
                 failing.await()
             } catch (e: Exception) {
