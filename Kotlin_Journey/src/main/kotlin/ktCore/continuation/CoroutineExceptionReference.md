@@ -179,6 +179,7 @@ launch {                                launch {
 | 2 | `coroutineScope` | `launch { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
 | 3 | `coroutineScope` | `try { launch } catch` | ❌ | 💀 | 🔴 |
 | 4 | `coroutineScope` | `launch { try { coroutineScope{ launch } } catch }` | ✅ 防火墙 | ✅ | 🟢 |
+| — | `coroutineScope` | `launch(CEH) { ... }` | ❌ CEH只打印 | 💀 | 🟡 |
 | 5 | `supervisorScope` | `launch(CEH) { ... }` | ✅ CEH消费 | ✅ | 🟢 |
 | 6 | `supervisorScope` | `launch { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
 | 7 | `supervisorScope` | `try { launch } catch` | ❌ | ✅ 但异常静默丢失 | 🔴 |
@@ -387,6 +388,35 @@ suspend fun launchCoroutineScope_innerCoroutineScope() {
 ```
 - 内层 coroutineScope 做防火墙，异常被挡在 launch-1 内部
 - 外层 coroutineScope 感知不到异常，兄弟存活
+
+---
+
+### #4.5 🟡 launch(CEH) — coroutineScope 中 CEH 只打印不阻止传播
+
+```kotlin
+suspend fun launchCoroutineScope_CEH() {
+    try {
+        coroutineScope {
+            launch(CEH) { delay(50); error("💥子异常") }
+            launch { println("   兄弟启动"); delay(100); println("   兄弟完成?") }
+            delay(200)
+            println("   这行不会打印")
+        }
+    } catch (e: Exception) {
+        println("   [外层catch] coroutineScope re-throw: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟启动
+   >>> CEH 捕获: 💥子异常
+   [外层catch] coroutineScope re-throw: 💥子异常
+```
+- CEH **只打印**不阻止传播 — coroutineScope 仍被取消
+- 对比 `#5 supervisorScope + CEH`：同样的代码换 supervisorScope 就 🟢
+- **CEH 的行为完全由外层作用域决定**
 
 ---
 
