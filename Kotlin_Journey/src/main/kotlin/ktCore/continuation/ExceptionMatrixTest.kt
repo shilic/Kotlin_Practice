@@ -397,7 +397,7 @@ suspend fun compareScopes() {
     try {
         coroutineScope {
             val f = async { delay(30); error("💥"); 1 }
-            val n = async { delay(80); println("   兄弟活着?"); 1 }
+            val n = async { println("   兄弟尝试..."); delay(80); println("   兄弟活着?"); 1 }
             try { f.await() } catch (e: Exception) { println("   捕获: ${e.message}") }
             n.await()
             delay(50)
@@ -409,7 +409,7 @@ suspend fun compareScopes() {
     println("\n── supervisorScope ──")
     supervisorScope {
         val f = async { delay(30); error("💥"); 1 }
-        val n = async { delay(80); println("   兄弟活着? ✅"); 1 }
+        val n = async { println("   兄弟尝试...");  delay(80); println("   兄弟活着? ✅"); 1 }
         try { f.await() } catch (e: Exception) { println("   捕获: ${e.message}") }
         n.await()
         println("   后续代码正常 ✅")
@@ -420,7 +420,7 @@ suspend fun compareScopes() {
     try {
         runBlocking {
             val f = async { delay(30); error("💥"); 1 }
-            val n = async { delay(80); println("   兄弟活着?"); 1 }
+            val n = async { println("   兄弟尝试..."); delay(80); println("   兄弟活着?"); 1 }
             try { f.await() } catch (e: Exception) {
                 println("   捕获: ${e.message}")
                 println("   ⚠️ 但我以为没事了...")
