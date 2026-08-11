@@ -219,16 +219,15 @@ fun launchGlobalScope_CEH() {
 /** #1 🟡 coroutineScope: try 包在 coroutineScope 外部 + async */
 suspend fun asyncCoroutineScope_outerTry() {
     println("\n=== #1 🟡 async + coroutineScope + try 包外部 ===")
-    supervisorScope {
-        try {
-            coroutineScope {
-                async { delay(50); error("💥子异常"); 1 }
-                async {  println("   兄弟尝试..."); delay(200); println("   兄弟完成? 不会打印") ; 1 }
-                delay(200)
-            }
-        } catch (e: Exception) {
-            println("   ✅ catch 捕获: ${e.message}")
+    try {
+        coroutineScope {
+            val f = async { delay(50); error("💥子异常"); 1 }
+            val n = async { println("   兄弟尝试..."); delay(200); println("   兄弟完成? 不会打印"); 1 }
+            f.await()
+            n.await()
         }
+    } catch (e: Exception) {
+        println("   ✅ catch 捕获: ${e.message}")
     }
     println("   → 结论: coroutineScope re-throw → 外部接住，但兄弟全灭\n")
 }
@@ -236,26 +235,24 @@ suspend fun asyncCoroutineScope_outerTry() {
 /** #2 🟡 coroutineScope: try 包在 await() 外部 */
 suspend fun asyncCoroutineScope_tryAwait() {
     println("\n=== #2 🟡 async + coroutineScope + try 包 await 外部 ===")
-    supervisorScope {
-        try {
-            coroutineScope {
-                val failing = async { delay(50); error("💥子异常"); 1 }
-                val normal  = async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
-                try {
-                    failing.await()
-                } catch (e: Exception) {
-                    println("   ✅ catch 捕获值: ${e.message}")
-                }
-                // 走到这里时 coroutineScope 的 Job 已被取消
-                // delay 是挂起点，检查到 Job 已取消 → 抛 CancellationException
-                delay(200)
-                println("   这行不会打印")
+    try {
+        coroutineScope {
+            val failing = async { delay(50); error("💥子异常"); 1 }
+            val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成? 不会打印"); 1 }
+            try {
+                failing.await()
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获值: ${e.message}")
             }
-        } catch (e: CancellationException) {
-            println("   💀 coroutineScope 因取消而结束(CancellationException)")
-        } catch (e: Exception) {
-            println("   💀 coroutineScope 因取消而结束(${e::class.simpleName}: ${e.message})")
+            // 走到这里时 coroutineScope 的 Job 已被取消
+            // 挂起点会检查到 Job 已取消 → 抛异常
+            normal.await()
+            println("   这行不会打印")
         }
+    } catch (e: CancellationException) {
+        println("   💀 coroutineScope 因取消而结束(CancellationException)")
+    } catch (e: Exception) {
+        println("   💀 coroutineScope re-throw 了原始异常(${e::class.simpleName}: ${e.message})")
     }
     println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
 }
@@ -264,15 +261,16 @@ suspend fun asyncCoroutineScope_tryAwait() {
 suspend fun asyncCoroutineScope_innerTry() {
     println("\n=== #3 🟡 async + coroutineScope + try 包内部 ===")
     coroutineScope {
-        async {
+        val f = async {
             try { delay(50); error("💥子异常") }
             catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
             1
         }
-        async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
-        delay(200)
+        val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成"); 1 }
+        f.await()
+        n.await()
     }
-    println("   → 结论: 内部接住了，但兄弟仍被取消 —— async 异常在发生时已传播\n")
+    println("   → 结论: 内部接住了，兄弟存活\n")
 }
 
 
@@ -301,12 +299,14 @@ suspend fun asyncSupervisorScope_tryAwait() {
 suspend fun asyncSupervisorScope_innerTry() {
     println("\n=== #5 🟢 async + supervisorScope + try 包内部 ===")
     supervisorScope {
-        async {
+        val f = async {
             try { delay(50); error("💥子异常") }
             catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
             1
         }
-        async { println("   兄弟尝试...");delay(100); println("   兄弟完成 ✅"); 1 }.await()
+        val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        f.await()
+        n.await()
     }
     println("   → 结论: 完美，兄弟不受影响\n")
 }
@@ -315,11 +315,16 @@ suspend fun asyncSupervisorScope_innerTry() {
 suspend fun asyncSupervisorScope_CEH() {
     println("\n=== #6 🔴 async + supervisorScope + CEH(无效!) ===")
     supervisorScope {
-        async(CEH) { delay(50); error("💥子异常"); 1 }  // CEH 被忽略
-        async { println("   兄弟尝试...");delay(100); println("   兄弟完成 ✅"); 1 }.await()
-        delay(150)
+        val f = async(CEH) { delay(50); error("💥子异常"); 1 }  // CEH 被忽略
+        val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        n.await()
+        try {
+            f.await()
+        } catch (e: Exception) {
+            println("   ✅ 只能靠 try-catch await: ${e.message}")
+        }
     }
-    println("   → 结论: CEH 对 async 完全无效! 异常被吞了，必须用 await + try-catch\n")
+    println("   → 结论: CEH 对 async 完全无效! 必须靠 await + try-catch\n")
 }
 
 
@@ -333,7 +338,7 @@ suspend fun asyncRunBlocking_tryAwait() {
     try {
         runBlocking {
             val failing = async { delay(50); error("💥子异常"); 1 }
-            val normal  = async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
+            val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成? 不会打印"); 1 }
             try {
                 // catch 只捕获了值，Job 早已被取消
                 failing.await()
@@ -342,8 +347,8 @@ suspend fun asyncRunBlocking_tryAwait() {
                 println("   ⚠️ 我以为没事了...")
             }
             // 走到这里时 runBlocking 的 Job 已被取消
-            // delay 是挂起点，检查到 Job 已取消 → 抛 CancellationException
-            delay(200)
+            // 挂起点检查到 Job 已取消 → 抛异常
+            normal.await()
             println("   这行永远不会打印 💀")
         }
     } catch (e: CancellationException) {
@@ -359,14 +364,15 @@ suspend fun asyncRunBlocking_innerTry() {
     println("\n=== #8 🟡 async + runBlocking + try 包内部 ===")
     try {
         runBlocking {
-            async {
+            val f = async {
                 try { delay(50); error("💥子异常") }
                 catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
                 1
             }
-            async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
+            val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成? 不会打印"); 1 }
+            f.await()
             // 走到这里时 runBlocking 的 Job 已被 async 异常取消
-            delay(150)
+            n.await()
             println("   这行不会打印")
         }
     } catch (e: CancellationException) {
