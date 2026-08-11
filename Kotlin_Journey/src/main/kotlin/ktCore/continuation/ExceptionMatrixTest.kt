@@ -335,6 +335,7 @@ suspend fun asyncRunBlocking_tryAwait() {
             val failing = async { delay(50); error("💥子异常"); 1 }
             val normal  = async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
             try {
+                // catch 只捕获了值，Job 早已被取消
                 failing.await()
             } catch (e: Exception) {
                 println("   ✅ catch 捕获值: ${e.message}")
@@ -363,7 +364,7 @@ suspend fun asyncRunBlocking_innerTry() {
                 catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
                 1
             }
-            async { delay(100); println("   兄弟完成? 不会打印"); 1 }
+            async { println("   兄弟尝试...");delay(100); println("   兄弟完成? 不会打印"); 1 }
             // 走到这里时 runBlocking 的 Job 已被 async 异常取消
             delay(150)
             println("   这行不会打印")
