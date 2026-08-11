@@ -261,3 +261,668 @@ GlobalScope       🟢     ❌    🟢           🟢     🟢         ❌    �
 6. **CEH 的行为取决于作用域**：supervisorScope 中能消费异常；coroutineScope/runBlocking 中只打印
 7. **CEH 对 async 完全无效**，只能用 await + try-catch
 8. **选作用域**：一个挂全停用 coroutineScope，各管各的用 supervisorScope，桥接用 runBlocking，别用 GlobalScope
+
+---
+
+# 附录：全部测试用例代码与预期输出
+
+## launch × coroutineScope
+
+### #1 🟡 try 包在 coroutineScope 外部
+
+```kotlin
+suspend fun launchCoroutineScope_outerTry() {
+    try {
+        coroutineScope {
+            launch { delay(50); println("   兄弟-1 启动"); delay(200); println("   兄弟-1 完成") }
+            launch { delay(100); error("💥子异常") }
+            launch { delay(150); println("   兄弟-2 完成") }
+        }
+    } catch (e: Exception) {
+        println("   ✅ catch 捕获: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟-1 启动
+   ✅ catch 捕获: 💥子异常
+```
+- 兄弟-1 在 50ms 打印后进入 delay(200)，100ms 时异常取消一切，"兄弟-1 完成" 不打印
+- 兄弟-2 delay(150) 还没到就被取消
+- 外层 try-catch 接住了 coroutineScope re-throw 的根因
+
+---
+
+### #2 🟢 try 包在 launch 内部（内部catch阻止传播）
+
+```kotlin
+suspend fun launchCoroutineScope_innerTry() {
+    coroutineScope {
+        launch {
+            try {
+                delay(100); error("💥子异常")
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+        }
+        launch { delay(50); println("   兄弟启动"); delay(200); println("   兄弟完成") }
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟启动
+   ✅ catch 捕获: 💥子异常
+   兄弟完成
+```
+- 异常在 launch 内部被 catch → 不传播 → coroutineScope 不取消 → 兄弟正常完成
+
+---
+
+### #3 🔴 try 包在 launch 外部（调用栈转移，抓不到）
+
+```kotlin
+suspend fun launchCoroutineScope_tryOutsideLaunch() {
+    try {
+        coroutineScope {
+            try {
+                launch { delay(50); error("💥子异常") }
+            } catch (e: Exception) {
+                println("   ⚠️ 这行永远不会打印")
+            }
+            launch { println("   兄弟启动"); delay(200); println("   兄弟完成") }
+        }
+    } catch (e: Exception) {
+        println("   ✅ 只有外层的 coroutineScope catch 能捕获: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟启动
+   ✅ 只有外层的 coroutineScope catch 能捕获: 💥子异常
+```
+- 内层 try 包在 launch 外面 → launch 立即返回 → catch 不触发
+- 异常只能被最外层 coroutineScope 的 catch 捕获
+- 兄弟被取消，"兄弟完成" 不打印
+
+---
+
+### #4 🟢 launch 内部嵌套 coroutineScope + try（防火墙）
+
+```kotlin
+suspend fun launchCoroutineScope_innerCoroutineScope() {
+    coroutineScope {
+        launch {
+            try {
+                coroutineScope {
+                    launch { delay(50); error("💥子异常") }
+                }
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+            println("   launch-1 正常结束 ✅")
+        }
+        launch { println("   兄弟启动"); delay(100); println("   兄弟完成 ✅") }
+        delay(200)
+        println("   外层 coroutineScope 正常结束 ✅")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟启动
+   ✅ catch 捕获: 💥子异常
+   launch-1 正常结束 ✅
+   兄弟完成 ✅
+   外层 coroutineScope 正常结束 ✅
+```
+- 内层 coroutineScope 做防火墙，异常被挡在 launch-1 内部
+- 外层 coroutineScope 感知不到异常，兄弟存活
+
+---
+
+## launch × supervisorScope
+
+### #5 🟢 launch(CEH) — supervisorScope 中 CEH 消费异常
+
+```kotlin
+suspend fun launchSupervisorScope_CEH() {
+    supervisorScope {
+        launch(CEH) { delay(50); error("💥子异常") }
+        launch { delay(100); println("   兄弟完成 ✅") }
+        launch { delay(200); println("   兄弟-2 完成 ✅") }
+        delay(300)
+    }
+}
+```
+
+**预期输出**：
+```
+   >>> CEH 捕获: 💥子异常
+   兄弟完成 ✅
+   兄弟-2 完成 ✅
+```
+- CEH 在 supervisorScope 中**消费**异常，不传播
+- 所有兄弟正常完成
+
+---
+
+### #6 🟢 try 包在 launch 内部
+
+```kotlin
+suspend fun launchSupervisorScope_innerTry() {
+    supervisorScope {
+        launch {
+            try {
+                delay(50); error("💥子异常")
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+        }
+        launch { println("   兄弟启动"); delay(100); println("   兄弟完成 ✅") }
+        delay(200)
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟启动
+   ✅ catch 捕获: 💥子异常
+   兄弟完成 ✅
+```
+- 内部 try-catch 阻止传播 + supervisorScope 双重保护
+
+---
+
+### #7 🔴 try 包在 launch 外部 — 抓不到，异常泄露到父协程
+
+```kotlin
+suspend fun launchSupervisorScope_tryOutsideLaunch() {
+    supervisorScope {
+        try {
+            launch { delay(50); error("💥子异常") }
+        } catch (e: Exception) {
+            println("   ⚠️ 这行永远不会打印")
+        }
+        launch { println("   兄弟启动"); delay(100); println("   兄弟完成 ✅ (但异常去哪了?)") }
+        delay(200)
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟启动
+   兄弟完成 ✅ (但异常去哪了?)
+```
+- try 在 launch 外面 → 抓不到
+- supervisorScope 不取消兄弟 → 兄弟正常完成
+- ⚠️ 但 supervisorScope 会把未处理的异常 re-throw 到父协程！如果父协程没有处理，会导致父协程被取消
+
+---
+
+### #8 🟢 launch 内部嵌套 coroutineScope + try
+
+```kotlin
+suspend fun launchSupervisorScope_innerCoroutineScope() {
+    supervisorScope {
+        launch {
+            try {
+                coroutineScope {
+                    launch { delay(50); error("💥子异常") }
+                }
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+        }
+        launch { delay(100); println("   兄弟完成 ✅") }
+        delay(200)
+    }
+}
+```
+
+**预期输出**：
+```
+   ✅ catch 捕获: 💥子异常
+   兄弟完成 ✅
+```
+- 内层 coroutineScope re-throw → 外层 try 接住 → 兄弟存活
+
+---
+
+## launch × runBlocking
+
+### #9 🟡 launch(CEH) — CEH 只打印不阻止传播
+
+```kotlin
+suspend fun launchRunBlocking_CEH() {
+    try {
+        runBlocking {
+            launch(CEH) { delay(50); error("💥子异常") }
+            launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成?") }
+            launch { delay(350); println("   永远不会打印") }
+            delay(400)
+        }
+    } catch (e: Exception) {
+        println("   ⚠️ runBlocking 本身也被取消: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   >>> CEH 捕获: 💥子异常
+   ⚠️ runBlocking 本身也被取消: 💥子异常
+```
+- CEH **只打印**，在 runBlocking 中不阻止传播
+- runBlocking 仍被取消，兄弟全部被取消
+
+---
+
+### #10 🟢 try 包在 launch 内部（内部catch阻止传播）
+
+```kotlin
+suspend fun launchRunBlocking_innerTry() {
+    runBlocking {
+        launch {
+            try {
+                delay(50); error("💥子异常")
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+        }
+        launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成 ✅") }
+        delay(300)
+        println("   后续代码正常 ✅")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+   兄弟完成 ✅
+   后续代码正常 ✅
+```
+- 内部 catch 阻止传播 → runBlocking 不被取消 → 一切正常
+
+---
+
+### #11 🟡 try 包在 runBlocking 外部
+
+```kotlin
+fun launchRunBlocking_outerTry() {
+    try {
+        runBlocking {
+            launch { delay(50); error("💥子异常") }
+            launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成?") }
+            delay(200)
+        }
+    } catch (e: Exception) {
+        println("   ✅ catch 捕获: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+```
+- 外部 catch 捕获了异常，但 runBlocking 内所有协程已灭
+
+---
+
+## launch × GlobalScope
+
+### #12 🟢 GlobalScope.launch(CEH)
+
+```kotlin
+fun launchGlobalScope_CEH() {
+    val job1 = GlobalScope.launch(CEH) { delay(50); error("💥子异常") }
+    val job2 = GlobalScope.launch { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅") }
+    runBlocking {
+        job1.join()
+        job2.join()
+        delay(100)
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   >>> CEH 捕获: 💥子异常
+   兄弟完成 ✅
+```
+- GlobalScope 无父级，CEH 消费异常
+- 兄弟在独立的 scope 中，不受影响
+- ⚠️ 不推荐使用 GlobalScope，生命周期无法管理
+
+---
+
+## async × coroutineScope
+
+### #1 🟡 try 包在 coroutineScope 外部
+
+```kotlin
+suspend fun asyncCoroutineScope_outerTry() {
+    try {
+        coroutineScope {
+            val f = async { delay(50); error("💥子异常"); 1 }
+            val n = async { println("   兄弟尝试..."); delay(200); println("   兄弟完成?"); 1 }
+            f.await()
+            n.await()
+        }
+    } catch (e: Exception) {
+        println("   ✅ catch 捕获: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+```
+- `f.await()` 抛出异常 → coroutineScope 取消 → 兄弟被取消 → "兄弟完成?" 不打印
+
+---
+
+### #2 🟡 try 包在 await() 外部 — 经典陷阱
+
+```kotlin
+suspend fun asyncCoroutineScope_tryAwait() {
+    try {
+        coroutineScope {
+            val failing = async { delay(50); error("💥子异常"); 1 }
+            val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成?"); 1 }
+            try {
+                failing.await()
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获值: ${e.message}")
+            }
+            normal.await()     // coroutineScope Job 已取消 → 抛异常
+            println("   这行不会打印")
+        }
+    } catch (e: CancellationException) {
+        println("   💀 coroutineScope 因取消而结束(CancellationException)")
+    } catch (e: Exception) {
+        println("   💀 coroutineScope re-throw 了原始异常: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获值: 💥子异常
+   💀 coroutineScope re-throw 了原始异常: 💥子异常
+```
+- `catch` 只捕获了 await() 的异常**值**，Job 早已被取消
+- `normal.await()` 触发 coroutineScope re-throw 根因
+
+---
+
+### #3 🟢 async 外套一层 coroutineScope 防火墙
+
+```kotlin
+suspend fun asyncCoroutineScope_wrapCoroutineScope() {
+    coroutineScope {          // 外层
+        launch {              // 用 launch 隔离
+            try {
+                coroutineScope {   // 防火墙：async 是这层的子Job
+                    val f = async { delay(50); error("💥子异常"); 1 }
+                    f.await()
+                }
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+            println("   launch-1 正常结束 ✅")
+        }
+        val normal = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        normal.await()
+        println("   外层 coroutineScope 正常结束 ✅")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+   launch-1 正常结束 ✅
+   兄弟完成 ✅
+   外层 coroutineScope 正常结束 ✅
+```
+- 内层 coroutineScope 隔离了 async 的异常 → 兄弟存活
+
+---
+
+### #4 🟡 async 定义在防火墙外部 — 失效
+
+```kotlin
+suspend fun asyncCoroutineScope_asyncOutsideFirewall() {
+    try {
+        coroutineScope {      // 外层
+            launch {
+                try {
+                    val f = async { delay(50); error("💥子异常"); 1 }  // 父Job=launch!
+                    coroutineScope { f.await() }  // 包的是 await，不是 async
+                } catch (e: Exception) {
+                    println("   ✅ catch 捕获值: ${e.message}")
+                }
+                delay(50)        // launch 的 Job 已取消
+                println("   这行不会打印")
+            }
+            val normal = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成?"); 1 }
+            normal.await()
+        }
+    } catch (e: CancellationException) {
+        println("   💀 外层 coroutineScope 因取消而结束")
+    } catch (e: Exception) {
+        println("   💀 外层 coroutineScope re-throw: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获值: 💥子异常
+   💀 外层 coroutineScope re-throw: 💥子异常
+```
+- async 的父Job 是 launch，不是 coroutineScope → 防火墙形同虚设
+- 异常绕过了防火墙，传播到外层
+
+---
+
+### #5 🟢 try 包在 async 内部
+
+```kotlin
+suspend fun asyncCoroutineScope_innerTry() {
+    coroutineScope {
+        val f = async {
+            try { delay(50); error("💥子异常") }
+            catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
+            1
+        }
+        val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成"); 1 }
+        f.await()
+        n.await()
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+   兄弟完成
+```
+- 内部 catch 阻止传播 → async 正常完成 → 兄弟存活
+
+---
+
+## async × supervisorScope
+
+### #6 🟢 try 包在 await() 外部
+
+```kotlin
+suspend fun asyncSupervisorScope_tryAwait() {
+    supervisorScope {
+        val failing = async { delay(50); error("💥子异常"); 1 }
+        val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        try {
+            failing.await()
+        } catch (e: Exception) {
+            println("   ✅ catch 捕获: ${e.message}")
+        }
+        normal.await()
+        println("   后续代码正常执行 ✅")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+   兄弟完成 ✅
+   后续代码正常执行 ✅
+```
+- supervisorScope 隔离 + try-catch await → 完美
+
+---
+
+### #7 🟢 try 包在 async 内部
+
+```kotlin
+suspend fun asyncSupervisorScope_innerTry() {
+    supervisorScope {
+        val f = async {
+            try { delay(50); error("💥子异常") }
+            catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
+            1
+        }
+        val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        f.await()
+        n.await()
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+   兄弟完成 ✅
+```
+
+---
+
+### #8 🔴 async(CEH) — CEH 对 async 永远无效
+
+```kotlin
+suspend fun asyncSupervisorScope_CEH() {
+    supervisorScope {
+        val f = async(CEH) { delay(50); error("💥子异常"); 1 }
+        val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        n.await()
+        try {
+            f.await()
+        } catch (e: Exception) {
+            println("   ✅ 只能靠 try-catch await: ${e.message}")
+        }
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   兄弟完成 ✅
+   ✅ 只能靠 try-catch await: 💥子异常
+```
+- CEH 被 async 完全忽略
+- 必须靠 `try { f.await() } catch` 才能捕获
+
+---
+
+## async × runBlocking
+
+### #9 🟡 try 包在 await() 外部 — 经典陷阱
+
+```kotlin
+suspend fun asyncRunBlocking_tryAwait() {
+    try {
+        runBlocking {
+            val failing = async { delay(50); error("💥子异常"); 1 }
+            val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成?"); 1 }
+            try {
+                failing.await()
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获值: ${e.message}")
+                println("   ⚠️ 我以为没事了...")
+            }
+            normal.await()
+            println("   这行永远不会打印 💀")
+        }
+    } catch (e: CancellationException) {
+        println("   💀 runBlocking 因取消而结束")
+    } catch (e: Exception) {
+        println("   💀 runBlocking re-throw: ${e.message}")
+    }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获值: 💥子异常
+   ⚠️ 我以为没事了...
+   💀 runBlocking re-throw: 💥子异常
+```
+- catch 只捕获了值，Job 早已被取消
+- runBlocking 内后续全死
+
+---
+
+### #10 🟢 try 包在 async 内部
+
+```kotlin
+suspend fun asyncRunBlocking_innerTry() {
+    try {
+        runBlocking {
+            val f = async {
+                try { delay(50); error("💥子异常") }
+                catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
+                1
+            }
+            val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成"); 1 }
+            f.await()
+            n.await()
+            println("   后续代码正常 ✅")
+        }
+    } catch (e: CancellationException) { ... }
+      catch (e: Exception) { ... }
+}
+```
+
+**预期输出**：
+```
+   兄弟尝试...
+   ✅ catch 捕获: 💥子异常
+   兄弟完成
+   后续代码正常 ✅
+```
+- 内部 catch 阻止传播 → 一切正常
