@@ -109,9 +109,9 @@ suspend fun launchSupervisorScope_CEH() {
     println("   → 结论: CEH 捕获 + 兄弟全部存活，完美\n")
 }
 
-/** #5 🟢 supervisorScope: try 包在 launch 内部 */
+/** #6 🟢 supervisorScope: try 包在 launch 内部 */
 suspend fun launchSupervisorScope_innerTry() {
-    println("\n=== #5 🟢 launch + supervisorScope + try 包内部 ===")
+    println("\n=== #6 🟢 launch + supervisorScope + try 包内部 ===")
     supervisorScope {
         launch {
             try {
@@ -120,30 +120,30 @@ suspend fun launchSupervisorScope_innerTry() {
                 println("   ✅ catch 捕获: ${e.message}")
             }
         }
-        launch { delay(100); println("   兄弟完成 ✅") }
+        launch {  println("   兄弟启动"); delay(100); println("   兄弟完成 ✅") }
         delay(200)
     }
     println("   → 结论: 内部 try 捕获 + 兄弟存活，完美\n")
 }
 
-/** #6 🔴 supervisorScope: try 包在 launch 外部 */
+/** #7 🔴 supervisorScope: try 包在 launch 外部 */
 suspend fun launchSupervisorScope_tryOutsideLaunch() {
-    println("\n=== #6 🔴 launch + supervisorScope + try 包 launch 外面 ===")
+    println("\n=== #7 🔴 launch + supervisorScope + try 包 launch 外面 ===")
     supervisorScope {
         try {
             launch { delay(50); error("💥子异常") }
         } catch (e: Exception) {
             println("   ⚠️ 这行永远不会打印")
         }
-        launch { delay(100); println("   兄弟完成 ✅ (但异常去哪了?)") }
+        launch {  println("   兄弟启动"); delay(100); println("   兄弟完成 ✅ (但异常去哪了?)") }
         delay(200)
     }
     println("   → 结论: try 包 launch 外面抓不到! supervisorScope 不向上传播，异常被吞了\n")
 }
 
-/** #7 🟢 supervisorScope: launch 内部嵌套 coroutineScope + try */
+/** #8 🟢 supervisorScope: launch 内部嵌套 coroutineScope + try */
 suspend fun launchSupervisorScope_innerCoroutineScope() {
-    println("\n=== #7 🟢 launch + supervisorScope + 内部 coroutineScope + try ===")
+    println("\n=== #8 🟢 launch + supervisorScope + 内部 coroutineScope + try ===")
     supervisorScope {
         launch {
             try {
@@ -165,9 +165,9 @@ suspend fun launchSupervisorScope_innerCoroutineScope() {
 //                     launch × runBlocking
 // ============================================================
 
-/** #8 🟡 runBlocking: launch(CEH)——CEH只打印不阻止传播 */
+/** #9 🟡 runBlocking: launch(CEH)——CEH只打印不阻止传播 */
 suspend fun launchRunBlocking_CEH() {
-    println("\n=== #8 🟡 launch + runBlocking + CEH(CEH只打印不阻止传播) ===")
+    println("\n=== #9 🟡 launch + runBlocking + CEH(CEH只打印不阻止传播) ===")
     try {
         runBlocking {
             launch(CEH) { delay(50); error("💥子异常") }
@@ -181,9 +181,9 @@ suspend fun launchRunBlocking_CEH() {
     println("   → 结论: CEH 只是打印了异常，但异常仍传播，runBlocking 被取消\n")
 }
 
-/** #9 🟢 runBlocking: try 包在 launch 内部 — 内部catch阻止传播 */
+/** #10 🟢 runBlocking: try 包在 launch 内部 — 内部catch阻止传播 */
 suspend fun launchRunBlocking_innerTry() {
-    println("\n=== #9 🟢 launch + runBlocking + try 包内部(内部catch阻止传播) ===")
+    println("\n=== #10 🟢 launch + runBlocking + try 包内部(内部catch阻止传播) ===")
     runBlocking {
         launch {
             try {
@@ -199,9 +199,9 @@ suspend fun launchRunBlocking_innerTry() {
     println("   → 结论: 内部 try 阻止了异常传播，runBlocking 未被取消\n")
 }
 
-/** #10 🟡 runBlocking: try 包在 runBlocking 外部 */
+/** #11 🟡 runBlocking: try 包在 runBlocking 外部 */
 fun launchRunBlocking_outerTry() {
-    println("\n=== #10 🟡 launch + runBlocking + try 包外部 ===")
+    println("\n=== #11 🟡 launch + runBlocking + try 包外部 ===")
     try {
         runBlocking {
             launch { delay(50); error("💥子异常") }
@@ -219,9 +219,9 @@ fun launchRunBlocking_outerTry() {
 //                     launch × GlobalScope
 // ============================================================
 
-/** #11 🟢 GlobalScope: launch(CEH) */
+/** #12 🟢 GlobalScope: launch(CEH) */
 fun launchGlobalScope_CEH() {
-    println("\n=== #11 🟢 launch + GlobalScope + CEH ===")
+    println("\n=== #12 🟢 launch + GlobalScope + CEH ===")
     val job1 = GlobalScope.launch(CEH) { delay(50); error("💥子异常") }
     val job2 = GlobalScope.launch { println("   兄弟尝试...");delay(100); println("   兄弟完成 ✅") }
     runBlocking {
@@ -507,8 +507,8 @@ fun main() = runBlocking {
     compareScopes()
 
     println("\n═══════════════════════════════════════════")
-    println("  全部 19 种组合测试完毕!")
-    println("  🟢 = 10种 (内部catch / supervisorScope)")
+    println("  全部 20 种组合测试完毕!")
+    println("  🟢 = 11种 (内部catch / supervisorScope / 内部coroutineScope+try)")
     println("  🟡 = 6种  (捕获了但兄弟已灭)")
     println("  🔴 = 3种  (完全没捕获)")
     println("═══════════════════════════════════════════\n")
