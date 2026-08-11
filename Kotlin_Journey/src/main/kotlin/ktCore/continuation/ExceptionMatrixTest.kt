@@ -378,7 +378,7 @@ suspend fun asyncRunBlocking_innerTry() {
     } catch (e: Exception) {
         println("   💀 runBlocking re-throw 了原始异常(${e::class.simpleName}: ${e.message})")
     }
-    println("   → 结论: 内部 try 接住了，但 runBlocking Job 已被取消\n")
+    println("   → 结论: 内部 try 接住了，兄弟存活\n")
 }
 
 
@@ -417,22 +417,26 @@ suspend fun compareScopes() {
 
     // runBlocking: 同 coroutineScope 的陷阱
     println("\n── runBlocking ──")
-    runBlocking {
-        val f = async { delay(30); error("💥"); 1 }
-        val n = async { delay(80); println("   兄弟活着?"); 1 }
-        try { f.await() } catch (e: Exception) {
-            println("   捕获: ${e.message}")
-            println("   ⚠️ 但我以为没事了...")
+    try {
+        runBlocking {
+            val f = async { delay(30); error("💥"); 1 }
+            val n = async { delay(80); println("   兄弟活着?"); 1 }
+            try { f.await() } catch (e: Exception) {
+                println("   捕获: ${e.message}")
+                println("   ⚠️ 但我以为没事了...")
+            }
+            // 下面的 delay 是挂起点，检查到 Job 已取消，抛 CancellationException
+            try {
+                delay(50)
+                println("   能走到这吗?")
+            } catch (e: CancellationException) {
+                println("   💀 delay 抛出 CancellationException, Job 已取消")
+            }
         }
-        // 下面的 delay 是挂起点，检查到 Job 已取消，抛 CancellationException
-        try {
-            delay(50)
-            println("   能走到这吗?")
-        } catch (e: CancellationException) {
-            println("   💀 delay 抛出 CancellationException, Job 已取消")
-        }
+    } catch (_ : Exception) {
+
     }
-    println()
+    println("compareScopes结束")
 }
 
 
