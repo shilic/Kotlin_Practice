@@ -278,9 +278,68 @@ suspend fun asyncCoroutineScope_tryAwait() {
     println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
 }
 
-/** #3 🟢 coroutineScope: try 包在 async 内部 — 内部catch阻止传播 */
+/** #3 🟢 coroutineScope: async 外再套一层 try + coroutineScope 做防火墙 */
+suspend fun asyncCoroutineScope_wrapCoroutineScope() {
+    println("\n=== #3 🟢 async + coroutineScope + 外层 try+coroutineScope 防火墙 ===")
+    coroutineScope {  // 外层 coroutineScope
+        launch {       // 用 launch 包裹，隔离 Job 层级
+            try {
+                // 内层 coroutineScope 是 async 的直接父Job
+                // async 异常 → 内层 coroutineScope 接住 → re-throw → 外层 try 捕获
+                coroutineScope {
+                    val f = async { delay(50); error("💥子异常"); 1 }
+                    f.await()
+                }
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+            println("   launch-1 正常结束 ✅")
+        }
+        // 兄弟在外层 coroutineScope，是 launch-1 的兄弟
+        // 不是内层 coroutineScope 的兄弟
+        val normal = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+        normal.await()
+        println("   外层 coroutineScope 正常结束 ✅")
+    }
+    println("   → 结论: 内层 coroutineScope 做防火墙，异常被隔离，兄弟存活\n")
+}
+
+/** #4 🟡 coroutineScope: async 定义在 coroutineScope 外部，防火墙失效 */
+suspend fun asyncCoroutineScope_asyncOutsideFirewall() {
+    println("\n=== #4 🟡 async + coroutineScope + async 定义在防火墙外部失效 ===")
+    try {
+        coroutineScope {  // 外层
+            launch {
+                try {
+                    // ⚠️ async 定义在 coroutineScope 外部！
+                    // async 的父 Job = 这个 launch，不是内层 coroutineScope
+                    val f = async { delay(50); error("💥子异常"); 1 }
+                    // coroutineScope 包的是 await，不是 async 本身
+                    coroutineScope {
+                        f.await()
+                    }
+                } catch (e: Exception) {
+                    println("   ✅ catch 捕获值: ${e.message}")
+                    println("   ⚠️ 但 launch 的 Job 已被取消...")
+                }
+                // launch 的 Job 已被取消，后续挂起点全死
+                delay(50)
+                println("   这行不会打印")
+            }
+            val normal = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成? 不会打印"); 1 }
+            normal.await()
+        }
+    } catch (e: CancellationException) {
+        println("   💀 外层 coroutineScope 因取消而结束(CancellationException)")
+    } catch (e: Exception) {
+        println("   💀 外层 coroutineScope re-throw: ${e.message}")
+    }
+    println("   → 结论: async 在 coroutineScope 外面定义的，防火墙拦不住 Job 层级的传播\n")
+}
+
+/** #5 🟢 coroutineScope: try 包在 async 内部 — 内部catch阻止传播 */
 suspend fun asyncCoroutineScope_innerTry() {
-    println("\n=== #3 🟢 async + coroutineScope + try 包内部(内部catch阻止传播) ===")
+    println("\n=== #5 🟢 async + coroutineScope + try 包内部(内部catch阻止传播) ===")
     coroutineScope {
         val f = async {
             try { delay(50); error("💥子异常") }
@@ -299,9 +358,9 @@ suspend fun asyncCoroutineScope_innerTry() {
 //                     async × supervisorScope
 // ============================================================
 
-/** #4 🟢 supervisorScope: try 包在 await() 外部 */
+/** #6 🟢 supervisorScope: try 包在 await() 外部 */
 suspend fun asyncSupervisorScope_tryAwait() {
-    println("\n=== #4 🟢 async + supervisorScope + try 包 await 外部 ===")
+    println("\n=== #6 🟢 async + supervisorScope + try 包 await 外部 ===")
     supervisorScope {
         val failing = async { delay(50); error("💥子异常"); 1 }
         val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
@@ -316,9 +375,9 @@ suspend fun asyncSupervisorScope_tryAwait() {
     println("   → 结论: 完美! 异常捕获 + 兄弟存活 + 后续代码正常\n")
 }
 
-/** #5 🟢 supervisorScope: try 包在 async 内部 */
+/** #7 🟢 supervisorScope: try 包在 async 内部 */
 suspend fun asyncSupervisorScope_innerTry() {
-    println("\n=== #5 🟢 async + supervisorScope + try 包内部 ===")
+    println("\n=== #7 🟢 async + supervisorScope + try 包内部 ===")
     supervisorScope {
         val f = async {
             try { delay(50); error("💥子异常") }
@@ -332,9 +391,9 @@ suspend fun asyncSupervisorScope_innerTry() {
     println("   → 结论: 完美，兄弟不受影响\n")
 }
 
-/** #6 🔴 supervisorScope: async(CEH) —— CEH 对 async 无效! */
+/** #8 🔴 supervisorScope: async(CEH) —— CEH 对 async 无效! */
 suspend fun asyncSupervisorScope_CEH() {
-    println("\n=== #6 🔴 async + supervisorScope + CEH(无效!) ===")
+    println("\n=== #8 🔴 async + supervisorScope + CEH(无效!) ===")
     supervisorScope {
         val f = async(CEH) { delay(50); error("💥子异常"); 1 }  // CEH 被忽略
         val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
@@ -353,9 +412,9 @@ suspend fun asyncSupervisorScope_CEH() {
 //                     async × runBlocking
 // ============================================================
 
-/** #7 🟡 runBlocking: try 包在 await() 外部 —— 经典陷阱! */
+/** #9 🟡 runBlocking: try 包在 await() 外部 —— 经典陷阱! */
 suspend fun asyncRunBlocking_tryAwait() {
-    println("\n=== #7 🟡 async + runBlocking + try 包 await 外部 ——⚠️ 经典陷阱 ===")
+    println("\n=== #9 🟡 async + runBlocking + try 包 await 外部 ——⚠️ 经典陷阱 ===")
     try {
         runBlocking {
             val failing = async { delay(50); error("💥子异常"); 1 }
@@ -380,9 +439,9 @@ suspend fun asyncRunBlocking_tryAwait() {
     println("   → 结论: catch 只捕获了值，Job 早已被取消，runBlocking 内后续全死\n")
 }
 
-/** #8 🟢 runBlocking: try 包在 async 内部 — 内部catch阻止传播 */
+/** #10 🟢 runBlocking: try 包在 async 内部 — 内部catch阻止传播 */
 suspend fun asyncRunBlocking_innerTry() {
-    println("\n=== #8 🟢 async + runBlocking + try 包内部(内部catch阻止传播) ===")
+    println("\n=== #10 🟢 async + runBlocking + try 包内部(内部catch阻止传播) ===")
     try {
         runBlocking {
             val f = async {
@@ -494,21 +553,23 @@ fun main() = runBlocking {
 
     asyncCoroutineScope_outerTry()       // #1 🟡
     asyncCoroutineScope_tryAwait()       // #2 🟡
-    asyncCoroutineScope_innerTry()       // #3 🟢 ←内部catch阻止传播
+    asyncCoroutineScope_wrapCoroutineScope() // #3 🟢 ←coroutineScope防火墙
+    asyncCoroutineScope_asyncOutsideFirewall() // #4 🟡 ←防火墙失效
+    asyncCoroutineScope_innerTry()       // #5 🟢 ←内部catch阻止传播
 
-    asyncSupervisorScope_tryAwait()      // #4 🟢
-    asyncSupervisorScope_innerTry()      // #5 🟢
-    asyncSupervisorScope_CEH()           // #6 🔴
+    asyncSupervisorScope_tryAwait()      // #6 🟢
+    asyncSupervisorScope_innerTry()      // #7 🟢
+    asyncSupervisorScope_CEH()           // #8 🔴
 
-    asyncRunBlocking_tryAwait()          // #7 🟡 ⚠️ 经典陷阱
-    asyncRunBlocking_innerTry()          // #8 🟢 ←内部catch阻止传播
+    asyncRunBlocking_tryAwait()          // #9 🟡 ⚠️ 经典陷阱
+    asyncRunBlocking_innerTry()          // #10 🟢 ←内部catch阻止传播
 
     // ============ 综合对比 ============
     compareScopes()
 
     println("\n═══════════════════════════════════════════")
-    println("  全部 20 种组合测试完毕!")
-    println("  🟢 = 11种 (内部catch / supervisorScope / 内部coroutineScope+try)")
+    println("  全部 21 种组合测试完毕!")
+    println("  🟢 = 12种 (内部catch / supervisorScope / coroutineScope防火墙)")
     println("  🟡 = 6种  (捕获了但兄弟已灭)")
     println("  🔴 = 3种  (完全没捕获)")
     println("═══════════════════════════════════════════\n")
