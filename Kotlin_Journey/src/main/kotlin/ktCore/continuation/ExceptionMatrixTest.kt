@@ -369,11 +369,9 @@ suspend fun asyncRunBlocking_innerTry() {
                 catch (e: Exception) { println("   ✅ catch 捕获: ${e.message}") }
                 1
             }
-            val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成? 不会打印"); 1 }
+            val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成"); 1 }
             f.await()
-            // 走到这里时 runBlocking 的 Job 已被 async 异常取消
             n.await()
-            println("   这行不会打印")
         }
     } catch (e: CancellationException) {
         println("   💀 runBlocking 因取消而结束(CancellationException)")
