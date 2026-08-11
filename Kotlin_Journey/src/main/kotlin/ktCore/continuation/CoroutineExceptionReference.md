@@ -182,7 +182,7 @@ launch {                                launch {
 | 5 | `supervisorScope` | `launch(CEH) { ... }` | ✅ CEH消费 | ✅ | 🟢 |
 | 6 | `supervisorScope` | `launch { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
 | 7 | `supervisorScope` | `try { launch } catch` | ❌ | ✅ 但异常静默丢失 | 🔴 |
-| 8 | `supervisorScope` | `launch { try { coroutineScope{ launch } } catch }` | ✅ | ✅ | 🟢 |
+| 8 | `supervisorScope` | `launch { try { coroutineScope{ launch } } catch }` | ✅防火墙 | ✅ | 🟢 |
 | 9 | `runBlocking` | `launch(CEH) { ... }` | ❌ CEH只打印 | 💀 | 🟡 |
 | 10 | `runBlocking` | `launch { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
 | 11 | `runBlocking` | `try { runBlocking { launch } } catch` | ✅ 外部接住 | 💀 内全灭 | 🟡 |
@@ -196,18 +196,18 @@ launch {                                launch {
 
 ## async 异常处理矩阵
 
-| # | 作用域 | 处理方式 | 能阻止传播？ | 兄弟？ | 评级 |
-|---|--------|---------|:----------:|:-----:|:----:|
-| 1 | `coroutineScope` | `try { coroutineScope { async.await() } } catch` | ✅ 外部接住 | 💀 | 🟡 |
+| # | 作用域 | 处理方式 | 能阻止传播？ |    兄弟？    | 评级 |
+|---|--------|---------|:----------:|:---------:|:----:|
+| 1 | `coroutineScope` | `try { coroutineScope { async.await() } } catch` | ✅ 只捕获值 |  💀只捕获值   | 🟡 |
 | 2 | `coroutineScope` | `try { async.await() } catch` | ❌ 只捕获值 | 💀 Job已取消 | 🟡 |
-| 3 | `coroutineScope` | `launch { try { coroutineScope{ async{...}.await() } } catch }` | ✅ 防火墙 | ✅ | 🟢 |
-| 4 | `coroutineScope` | `launch { val f=async{...}; try { coroutineScope{ f.await() } } catch }` | ❌ async在墙外 | 💀 | 🟡 |
-| 5 | `coroutineScope` | `async { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
-| 6 | `supervisorScope` | `try { async.await() } catch` | ✅ | ✅ | 🟢 |
-| 7 | `supervisorScope` | `async { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
-| 8 | `supervisorScope` | `async(CEH) { ... }` | ❌ CEH对async无效 | ✅ | 🔴 |
+| 3 | `coroutineScope` | `launch { try { coroutineScope{ async{...}.await() } } catch }` | ✅ 防火墙 |     ✅     | 🟢 |
+| 4 | `coroutineScope` | `launch { val f=async{...}; try { coroutineScope{ f.await() } } catch }` | ❌ async在墙外 |  💀只捕获值   | 🟡 |
+| 5 | `coroutineScope` | `async { try { ... } catch }` | ✅ 内部阻止 |     ✅     | 🟢 |
+| 6 | `supervisorScope` | `try { async.await() } catch` | ✅受到保护 |   ✅受到保护   | 🟢 |
+| 7 | `supervisorScope` | `async { try { ... } catch }` | ✅ 内部阻止 |     ✅     | 🟢 |
+| 8 | `supervisorScope` | `async(CEH) { ... }` | ❌ CEH对async无效 |     ✅受到保护     | 🔴 |
 | 9 | `runBlocking` | `try { async.await() } catch` | ❌ 只捕获值 | 💀 Job已取消 | 🟡 |
-| 10 | `runBlocking` | `async { try { ... } catch }` | ✅ 内部阻止 | ✅ | 🟢 |
+| 10 | `runBlocking` | `async { try { ... } catch }` | ✅ 内部阻止 |     ✅     | 🟢 |
 
 **#3 vs #4 的关键区别**：
 ```
