@@ -286,10 +286,11 @@ suspend fun asyncCoroutineScope_wrapCoroutineScope() {
             try {
                 // 内层 coroutineScope 是 async 的直接父Job
                 // async 异常 → 内层 coroutineScope 接住 → re-throw → 外层 try 捕获
+                var f : Deferred<Int>
                 coroutineScope {
-                    val f = async { delay(50); error("💥子异常"); 1 }
-                    f.await()
+                    f = async { delay(50); error("💥子异常"); 1 }
                 }
+                f.await()
             } catch (e: Exception) {
                 println("   ✅ catch 捕获: ${e.message}")
             }
