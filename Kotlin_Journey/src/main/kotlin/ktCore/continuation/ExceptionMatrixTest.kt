@@ -37,9 +37,9 @@ suspend fun launchCoroutineScope_outerTry() {
     println("   → 结论: try-catch 接住了异常，但兄弟-2 已被取消，异常传递到兄弟-1\n")
 }
 
-/** #2 🟡 coroutineScope: try 包在 launch 内部 */
+/** #2 🟢 coroutineScope: try 包在 launch 内部 — 内部catch阻止传播 */
 suspend fun launchCoroutineScope_innerTry() {
-    println("\n=== #2 🟡 launch + coroutineScope + try 包 launch 内部(没有转移调用栈) ===")
+    println("\n=== #2 🟢 launch + coroutineScope + try 包 launch 内部(内部catch阻止传播) ===")
     coroutineScope {
         launch {
             try {
@@ -71,14 +71,35 @@ suspend fun launchCoroutineScope_tryOutsideLaunch() {
     println("   → 结论: try 包 launch 外面， 调用栈转移，抓不到异常，launch 立即返回了。\n")
 }
 
+/** #4 🟢 coroutineScope: launch 内部嵌套 coroutineScope + try */
+suspend fun launchCoroutineScope_innerCoroutineScope() {
+    println("\n=== #4 🟢 launch + coroutineScope + 内部 coroutineScope + try ===")
+    coroutineScope {
+        launch {
+            try {
+                coroutineScope {
+                    launch { delay(50); error("💥子异常") }
+                }
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获: ${e.message}")
+            }
+            println("   launch-1 正常结束 ✅")
+        }
+        launch { println("   兄弟启动"); delay(100); println("   兄弟完成 ✅") }
+        delay(200)
+        println("   外层 coroutineScope 正常结束 ✅")
+    }
+    println("   → 结论: 内部 try 接住 coroutineScope 的 re-throw → launch-1 正常完成 → 兄弟存活\n")
+}
+
 
 // ============================================================
 //                     launch × supervisorScope
 // ============================================================
 
-/** #4 🟢 supervisorScope: launch(CEH) */
+/** #5 🟢 supervisorScope: launch(CEH) */
 suspend fun launchSupervisorScope_CEH() {
-    println("\n=== #4 🟢 launch + supervisorScope + CEH ===")
+    println("\n=== #5 🟢 launch + supervisorScope + CEH ===")
     supervisorScope {
         launch(CEH) { delay(50); error("💥子异常") }
         launch { delay(100); println("   兄弟完成 ✅") }
@@ -144,25 +165,25 @@ suspend fun launchSupervisorScope_innerCoroutineScope() {
 //                     launch × runBlocking
 // ============================================================
 
-/** #8 🟡 runBlocking: launch(CEH) */
+/** #8 🟡 runBlocking: launch(CEH)——CEH只打印不阻止传播 */
 suspend fun launchRunBlocking_CEH() {
-    println("\n=== #8 🟡 launch + runBlocking + CEH ===")
+    println("\n=== #8 🟡 launch + runBlocking + CEH(CEH只打印不阻止传播) ===")
     try {
         runBlocking {
             launch(CEH) { delay(50); error("💥子异常") }
-            launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成?") }
+            launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成? 不会打印") }
             launch { delay(350); println("   永远不会打印") }
             delay(400)
         }
     } catch (e: Exception) {
         println("   ⚠️ runBlocking 本身也被取消: ${e.message}")
     }
-    println("   → 结论: CEH 捕获了异常值，但 runBlocking Job 已取消，后续代码全挂\n")
+    println("   → 结论: CEH 只是打印了异常，但异常仍传播，runBlocking 被取消\n")
 }
 
-/** #9 🟡 runBlocking: try 包在 launch 内部 */
+/** #9 🟢 runBlocking: try 包在 launch 内部 — 内部catch阻止传播 */
 suspend fun launchRunBlocking_innerTry() {
-    println("\n=== #9 🟡 launch + runBlocking + try 包内部 ===")
+    println("\n=== #9 🟢 launch + runBlocking + try 包内部(内部catch阻止传播) ===")
     runBlocking {
         launch {
             try {
@@ -171,11 +192,11 @@ suspend fun launchRunBlocking_innerTry() {
                 println("   ✅ catch 捕获: ${e.message}")
             }
         }
-        launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成? 不会打印") }
+        launch { println("   兄弟尝试..."); delay(200); println("   兄弟完成 ✅") }
         delay(300)
-        println("   这行也不会打印")
+        println("   后续代码正常 ✅")
     }
-    println("   → 结论: 内部 try 接住了，但兄弟全灭，runBlocking 也被取消\n")
+    println("   → 结论: 内部 try 阻止了异常传播，runBlocking 未被取消\n")
 }
 
 /** #10 🟡 runBlocking: try 包在 runBlocking 外部 */
@@ -257,9 +278,9 @@ suspend fun asyncCoroutineScope_tryAwait() {
     println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
 }
 
-/** #3 🟡 coroutineScope: try 包在 async 内部 */
+/** #3 🟢 coroutineScope: try 包在 async 内部 — 内部catch阻止传播 */
 suspend fun asyncCoroutineScope_innerTry() {
-    println("\n=== #3 🟡 async + coroutineScope + try 包内部 ===")
+    println("\n=== #3 🟢 async + coroutineScope + try 包内部(内部catch阻止传播) ===")
     coroutineScope {
         val f = async {
             try { delay(50); error("💥子异常") }
@@ -359,9 +380,9 @@ suspend fun asyncRunBlocking_tryAwait() {
     println("   → 结论: catch 只捕获了值，Job 早已被取消，runBlocking 内后续全死\n")
 }
 
-/** #8 🟡 runBlocking: try 包在 async 内部 */
+/** #8 🟢 runBlocking: try 包在 async 内部 — 内部catch阻止传播 */
 suspend fun asyncRunBlocking_innerTry() {
-    println("\n=== #8 🟡 async + runBlocking + try 包内部 ===")
+    println("\n=== #8 🟢 async + runBlocking + try 包内部(内部catch阻止传播) ===")
     try {
         runBlocking {
             val f = async {
@@ -372,13 +393,14 @@ suspend fun asyncRunBlocking_innerTry() {
             val n = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成"); 1 }
             f.await()
             n.await()
+            println("   后续代码正常 ✅")
         }
     } catch (e: CancellationException) {
         println("   💀 runBlocking 因取消而结束(CancellationException)")
     } catch (e: Exception) {
         println("   💀 runBlocking re-throw 了原始异常(${e::class.simpleName}: ${e.message})")
     }
-    println("   → 结论: 内部 try 接住了，兄弟存活\n")
+    println("   → 结论: 内部 try 阻止了异常传播，兄弟存活\n")
 }
 
 
@@ -453,38 +475,41 @@ fun main() = runBlocking {
     println("\n\n████████████████ launch 系列 ████████████████")
 
     launchCoroutineScope_outerTry()       // #1  🟡
-    launchCoroutineScope_innerTry()       // #2  🟡
+    launchCoroutineScope_innerTry()       // #2  🟢 ←内部catch阻止传播
     launchCoroutineScope_tryOutsideLaunch() // #3 🔴
+    launchCoroutineScope_innerCoroutineScope() // #4 🟢 ←内部coroutineScope+try
 
-    launchSupervisorScope_CEH()           // #4  🟢
-    launchSupervisorScope_innerTry()      // #5  🟢
-    launchSupervisorScope_tryOutsideLaunch() // #6 🔴
-    launchSupervisorScope_innerCoroutineScope() // #7 🟢
+    launchSupervisorScope_CEH()           // #5  🟢
+    launchSupervisorScope_innerTry()      // #6  🟢
+    launchSupervisorScope_tryOutsideLaunch() // #7 🔴
+    launchSupervisorScope_innerCoroutineScope() // #8 🟢
 
-    launchRunBlocking_CEH()              // #8  🟡
-    launchRunBlocking_innerTry()         // #9  🟡
-    launchRunBlocking_outerTry()         // #10 🟡
-    launchGlobalScope_CEH()              // #11 🟢
+    launchRunBlocking_CEH()              // #9  🟡 ←CEH只打印不阻止传播
+    launchRunBlocking_innerTry()         // #10 🟢 ←内部catch阻止传播
+    launchRunBlocking_outerTry()         // #11 🟡
+    launchGlobalScope_CEH()              // #12 🟢
 
     // ============ async 系列 ============
     println("\n\n████████████████ async 系列 ████████████████")
 
     asyncCoroutineScope_outerTry()       // #1 🟡
     asyncCoroutineScope_tryAwait()       // #2 🟡
-    asyncCoroutineScope_innerTry()       // #3 🟡
+    asyncCoroutineScope_innerTry()       // #3 🟢 ←内部catch阻止传播
 
     asyncSupervisorScope_tryAwait()      // #4 🟢
     asyncSupervisorScope_innerTry()      // #5 🟢
     asyncSupervisorScope_CEH()           // #6 🔴
 
     asyncRunBlocking_tryAwait()          // #7 🟡 ⚠️ 经典陷阱
-    asyncRunBlocking_innerTry()          // #8 🟡
+    asyncRunBlocking_innerTry()          // #8 🟢 ←内部catch阻止传播
 
     // ============ 综合对比 ============
     compareScopes()
 
     println("\n═══════════════════════════════════════════")
     println("  全部 19 种组合测试完毕!")
-    println("  🟢 = 只有 6 种能做到 '异常捕获 + 兄弟存活'")
+    println("  🟢 = 10种 (内部catch / supervisorScope)")
+    println("  🟡 = 6种  (捕获了但兄弟已灭)")
+    println("  🔴 = 3种  (完全没捕获)")
     println("═══════════════════════════════════════════\n")
 }
