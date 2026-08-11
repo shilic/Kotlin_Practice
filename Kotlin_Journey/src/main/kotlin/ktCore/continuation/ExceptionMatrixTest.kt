@@ -92,6 +92,22 @@ suspend fun launchCoroutineScope_innerCoroutineScope() {
     println("   → 结论: 内部 try 接住 coroutineScope 的 re-throw → launch-1 正常完成 → 兄弟存活\n")
 }
 
+/** #4.5 🟡 coroutineScope: launch(CEH) — CEH 只打印不阻止传播 */
+suspend fun launchCoroutineScope_CEH() {
+    println("\n=== #4.5 🟡 launch + coroutineScope + CEH(只打印不阻止传播) ===")
+    try {
+        coroutineScope {
+            launch(CEH) { delay(50); error("💥子异常") }
+            launch { println("   兄弟启动"); delay(100); println("   兄弟完成? 不会打印") }
+            delay(200)
+            println("   这行不会打印")
+        }
+    } catch (e: Exception) {
+        println("   [外层catch] coroutineScope re-throw: ${e.message}")
+    }
+    println("   → 结论: CEH 只打印，异常仍传播，coroutineScope 仍被取消\n")
+}
+
 
 // ============================================================
 //                     launch × supervisorScope
@@ -562,6 +578,7 @@ fun main() = runBlocking {
     launchCoroutineScope_innerTry()       // #2  🟢 ←内部catch阻止传播
     launchCoroutineScope_tryOutsideLaunch() // #3 🔴
     launchCoroutineScope_innerCoroutineScope() // #4 🟢 ←内部coroutineScope+try
+    launchCoroutineScope_CEH()            // #4.5 🟡 ←CEH只打印不阻止传播
 
     launchSupervisorScope_CEH()           // #5  🟢
     launchSupervisorScope_innerTry()      // #6  🟢
