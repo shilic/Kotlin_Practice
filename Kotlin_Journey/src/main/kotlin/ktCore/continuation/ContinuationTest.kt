@@ -1,17 +1,6 @@
 package ktCore.continuation
 
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import kotlin.concurrent.thread
 import kotlin.coroutines.*
 import kotlin.coroutines.cancellation.CancellationException
@@ -68,6 +57,7 @@ class ContinuationTest {
             while (isActive) {
                 // ← 这是挂起点，也是取消检查点
                 delay(100.milliseconds)
+                ensureActive()
                 println("In job")
             }
             // 这里抛不抛异常都会取消

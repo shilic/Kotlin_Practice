@@ -93,15 +93,15 @@ suspend fun launchCoroutineScope_innerCoroutineScope() {
 }
 
 /** #4.5 🟡 coroutineScope: launch(CEH) — CEH 只打印不阻止传播 */
-suspend fun launchCoroutineScope_CEH() {
+fun launchCoroutineScope_CEH() {
     println("\n=== #4.5 🟡 launch + coroutineScope + CEH(只打印不阻止传播) ===")
     try {
-        coroutineScope {
-            launch(CEH) { delay(50); error("💥子异常") }
-            launch { println("   兄弟启动"); delay(100); println("   兄弟完成? 不会打印") }
-            delay(200)
-            println("   这行不会打印")
-        }
+        // ✅ 正确：handler 在 launch 的上下文中
+        val scope = CoroutineScope(Job() + CEH)
+        scope.launch { delay(50); error("💥子异常") }
+        scope.launch { println("   兄弟启动"); delay(100); println("   兄弟完成? 不会打印") }
+        //delay(200)
+        println("   这行不会打印")
     } catch (e: Exception) {
         println("   [外层catch] coroutineScope re-throw: ${e.message}")
     }
@@ -128,6 +128,7 @@ suspend fun launchSupervisorScope_CEH() {
 /** #6 🟢 supervisorScope: try 包在 launch 内部 */
 suspend fun launchSupervisorScope_innerTry() {
     println("\n=== #6 🟢 launch + supervisorScope + try 包内部 ===")
+    val supervisorScope = CoroutineScope(SupervisorJob() )
     supervisorScope {
         launch {
             try {
@@ -317,6 +318,31 @@ suspend fun asyncCoroutineScope_tryAwait() {
     }
     println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
 }
+/** #2 🟡 coroutineScope: try 包在 await() 外部 */
+suspend fun asyncCoroutineScope2_tryAwait() {
+    println("\n=== #2.1 🟡 async + coroutineScope + try 包 await 外部 ===")
+    val coroutineScope = CoroutineScope(Job())
+    try {
+        //coroutineScope {
+            val failing = coroutineScope.async { delay(50); error("💥子异常"); 1 }
+            val normal  = coroutineScope.async { println("   兄弟尝试..."); delay(100); println("   兄弟完成? 不会打印"); 1 }
+            try {
+                failing.await()
+            } catch (e: Exception) {
+                println("   ✅ catch 捕获值: ${e.message}")
+            }
+            // 走到这里时 coroutineScope 的 Job 已被取消
+            // 挂起点会检查到 Job 已取消 → 抛异常
+            normal.await()
+            println("   这行不会打印")
+        //}
+    } catch (e: CancellationException) {
+        println("   💀 coroutineScope 因取消而结束(CancellationException)")
+    } catch (e: Exception) {
+        println("   💀 coroutineScope re-throw 了原始异常(${e::class.simpleName}: ${e.message})")
+    }
+    println("   → 结论: 捕获了异常值，但 coroutineScope Job 早已被取消\n")
+}
 
 /** #3 🟢 coroutineScope: async 外再套一层 try + coroutineScope 做防火墙 */
 suspend fun asyncCoroutineScope_wrapCoroutineScope() {
@@ -402,9 +428,10 @@ suspend fun asyncCoroutineScope_innerTry() {
 /** #6 🟢 supervisorScope: try 包在 await() 外部 */
 suspend fun asyncSupervisorScope_tryAwait() {
     println("\n=== #6 🟢 async + supervisorScope + try 包 await 外部 ===")
-    supervisorScope {
-        val failing = async { delay(50); error("💥子异常"); 1 }
-        val normal  = async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
+    val supervisorScope = CoroutineScope(SupervisorJob())
+    //supervisorScope {
+        val failing = supervisorScope.async { delay(50); error("💥子异常"); 1 }
+        val normal  = supervisorScope.async { println("   兄弟尝试..."); delay(100); println("   兄弟完成 ✅"); 1 }
         try {
             failing.await()
         } catch (e: Exception) {
@@ -412,7 +439,7 @@ suspend fun asyncSupervisorScope_tryAwait() {
         }
         normal.await()
         println("   后续代码正常执行 ✅")
-    }
+    //}
     println("   → 结论: 完美! 异常捕获 + 兄弟存活 + 后续代码正常\n")
 }
 
@@ -595,6 +622,7 @@ fun main() = runBlocking {
     println("\n\n████████████████ async 系列 ████████████████")
 
     asyncCoroutineScope_outerTry()       // #1 🟡
+    asyncCoroutineScope2_tryAwait()      // #2.1
     asyncCoroutineScope_tryAwait()       // #2 🟡
     asyncCoroutineScope_wrapCoroutineScope() // #3 🟢 ←coroutineScope防火墙
     asyncCoroutineScope_asyncOutsideFirewall() // #4 🟡 ←防火墙失效
