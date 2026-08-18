@@ -52,7 +52,7 @@ class ContinuationTest {
         }
         // JobSupport
         println("deferred.await() = ${Await of deferred}")
-        val job = launch(Dispatchers.Default) {
+        val job: Job = launch(Dispatchers.Default) {
             // 有delay函数，死循环也可以取消；没有，则无法取消；故，使用 isActive 检查才是正解
             while (isActive) {
                 // ← 这是挂起点，也是取消检查点
@@ -95,6 +95,13 @@ class ContinuationTest {
     }
     fun test5() {
         val job = GlobalScope.launch(Dispatchers.Default) {
+            delay(1000.milliseconds)
+            println("In job")
+        }
+    }
+    fun test7() {
+        val scope = MainScope()
+        val job = scope.launch(Dispatchers.Default) {
             delay(1000.milliseconds)
             println("In job")
         }
