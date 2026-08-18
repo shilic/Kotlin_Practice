@@ -106,7 +106,13 @@ class ContinuationTest {
             println("In job")
         }
     }
-
+    suspend fun test8() {
+        val scope = MainScope()
+        val job = withTimeout( timeMillis = 10000 ) {
+            delay(1000.milliseconds)
+            println("In job")
+        }
+    }
 
 }
 
