@@ -1,17 +1,170 @@
+
+# Kotlin
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
+*.ipr
+*.iws
+.kotlin/
+.kotlin_boot/
+.kotlin_module/
+
+# Gradle
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+workspace.xml
+tasks.xml
+*.navigation
+*.versionsBackup
+shelf/
+*.hprof
+*.hprof.index
+*.log
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/compiler.xml
+.idea/scopes/
+.idea/shelf/
+.idea/codeStyles/
+.idea/inspectionProfiles/
+*.ids
+*.orig
+*.classpath
+*.project
+*.settings/
+
+# Android Studio
 /.idea/workspace.xml
-/.idea/navEditor.xml
+/.idea/tasks.xml
+/.idea/gradle.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-# Compiled class file
+/.idea/dictionaries
+/.idea/libraries
+/.idea/caches
+/.idea/modules.xml
+/.idea/navEditor.xml
+/.idea/runConfigurations.xml
+/.idea/compiler.xml
+.local/
+.cache/
+*.log
+*.hprof
+*.orig
+.recommenders/
+
+# Build
+target/
+bin/
+gen/
+obj/
+*.apk
+*.ap_
+*.dex
 *.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Gradle Wrapper
+!gradle/wrapper/
+gradle/wrapper/gradle-wrapper.properties
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.swp
+.directory
+.cache/
+.config/
+.Trash-*/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE specific
+.vscode/
+*.swp
+*.swo
+*~
+.~lock.*
+.sass-cache/
+.stylelintcache
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
