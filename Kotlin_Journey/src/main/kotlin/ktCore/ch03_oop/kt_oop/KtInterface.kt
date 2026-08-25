@@ -97,6 +97,17 @@ open class Swim : ISwim {
 interface KeyInterface   {
     var key: String
 }
+
+
+private open class BaseClass{
+
+}
+private class BaseClassImpl : BaseClass()
+
+// 委托只能委托给接口
+// private class BaseClassImpl1(baseClass: BaseClassImpl): BaseClass by baseClass
+
+
 /**
  * 通过委托的方式实现多继承
  */
