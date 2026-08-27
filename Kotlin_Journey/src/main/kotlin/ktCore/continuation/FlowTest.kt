@@ -2,6 +2,7 @@ package ktCore.continuation
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /** 消费流必须在挂起函数 */
 suspend fun flowTest() {
@@ -17,7 +18,7 @@ suspend fun flowTest() {
 /** 创建流可以在任意函数 */
 fun coldFlow1(): Flow<String> = flow {
     emit("A")
-    delay(100)
+    delay(100.milliseconds)
     emit("B")
 }
 
