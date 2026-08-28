@@ -3,8 +3,16 @@ package ktCore.continuation
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
+import okhttp3.internal.wait
 import kotlin.time.Duration.Companion.milliseconds
 
+sealed class UiState {
+    data object Loading: UiState()
+    data class Success(val data: String): UiState()
+    data class Error(val message: String): UiState()
+}
+private data class UiState2(val count: Int = 0) {
+}
 
 class StateFlowTest {
     // 定义
@@ -20,7 +28,7 @@ class StateFlowTest {
     // val state by viewModel.uiState.collectAsState()
 }
 
-fun main(): Unit = runBlocking {
+suspend fun collectTest() {
     val uiState = MutableStateFlow<UiState>(UiState.Loading)
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
@@ -42,10 +50,24 @@ fun main(): Unit = runBlocking {
         uiState.value = UiState.Success(it.toString())
         delay(1000.milliseconds)
     }
+    scope.cancel()
 }
 
-sealed class UiState {
-    data object Loading: UiState()
-    data class Success(val data: String): UiState()
-    data class Error(val message: String): UiState()
+suspend fun badCollect() {
+    val uiState = MutableStateFlow<UiState2>(UiState2())
+    // 每次都出新值 → 无限循环
+    uiState.collect { state ->
+        delay(100.milliseconds)
+        // ❌ 危险的写法，在收集函数中修改状态，导致无限循环
+        uiState.value = state.copy(count = state.count + 1)
+        println("oldState : $state, newState : ${uiState.value}")
+    }
 }
+
+
+fun main(): Unit = runBlocking {
+//    collectTest()
+    badCollect()
+}
+
+
